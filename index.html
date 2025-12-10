@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>مدير مشتركي IPTV | لوحة تحكم متقدمة</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	
+	<style>
+		:root {
+			--primary-color: #2563eb;
+			--secondary-color: #1e40af;
+			--bg-color: #f3f4f6;
+			--card-bg: #ffffff;
+			--text-color: #1f2937;
+			--text-secondary: #6b7280;
+			--border-color: #e5e7eb;
+			--danger-color: #ef4444;
+			--success-color: #10b981;
+			--warning-color: #f59e0b;
+			--trash-color: #6366f1;
+			--shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+			--radius: 0.5rem;
+			--transition: 0.3s ease;
+		}
+
+		body.dark-mode {
+			--bg-color: #111827;
+			--card-bg: #1f2937;
+			--text-color: #f9fafb;
+			--text-secondary: #9ca3af;
+			--border-color: #374151;
+			--shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+		}
+
+		* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+		
+		body { background-color: var(--bg-color); color: var(--text-color); transition: background-color var(--transition); padding-bottom: 50px; }
+
+		/* Navigation */
+		nav {
+			background-color: var(--card-bg);
+			box-shadow: var(--shadow);
+			padding: 1rem 2rem;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			position: sticky;
+			top: 0;
+			z-index: 100;
+		}
+		.logo { font-size: 1.5rem; font-weight: bold; color: var(--primary-color); display: flex; align-items: center; gap: 10px; }
+		.nav-links button {
+			background: none; border: none; padding: 0.5rem 1rem; cursor: pointer;
+			font-size: 1rem; color: var(--text-color); transition: var(--transition);
+			border-radius: var(--radius);
+		}
+		.nav-links button:hover, .nav-links button.active { background-color: var(--primary-color); color: white; }
+
+		/* Layout */
+		.container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
+		.section { display: none; animation: fadeIn 0.4s ease-in-out; }
+		.section.active { display: block; }
+
+		/* Cards & Forms */
+		.card { background: var(--card-bg); padding: 1.5rem; border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 1.5rem; border: 1px solid var(--border-color); }
+		.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; }
+		.form-group { margin-bottom: 1rem; }
+		.form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--text-secondary); }
+		.form-control {
+			width: 100%; padding: 0.75rem; border: 1px solid var(--border-color);
+			border-radius: var(--radius); background: var(--bg-color); color: var(--text-color);
+			transition: var(--transition);
+		}
+		.form-control:focus { outline: none; border-color: var(--primary-color); outline: 2px solid var(--primary-color); }
+		
+		.section-title { margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--border-color); display: flex; align-items: center; gap: 10px; }
+
+		/* Buttons */
+		.btn { padding: 0.6rem 1.2rem; border: none; border-radius: var(--radius); cursor: pointer; font-weight: 600; transition: var(--transition); display: inline-flex; align-items: center; gap: 5px; }
+		.btn-primary { background: var(--primary-color); color: white; }
+		.btn-success { background: var(--success-color); color: white; }
+		.btn-danger { background: var(--danger-color); color: white; }
+		.btn-warning { background: var(--warning-color); color: white; }
+		.btn-sm { padding: 0.4rem 0.8rem; font-size: 0.9rem; }
+		.btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+		/* Table */
+		.table-container { overflow-x: auto; }
+		table { width: 100%; border-collapse: collapse; white-space: nowrap; }
+		th, td { padding: 1rem; text-align: right; border-bottom: 1px solid var(--border-color); }
+		th { background-color: var(--bg-color); font-weight: 600; color: var(--text-secondary); cursor: pointer; user-select: none; }
+		tr:hover { background-color: rgba(0,0,0,0.02); }
+		
+		/* Status Colors */
+		tr.status-expired td { background-color: rgba(239, 68, 68, 0.1); border-right: 4px solid var(--danger-color); }
+		tr.status-warning td { background-color: rgba(245, 158, 11, 0.1); border-right: 4px solid var(--warning-color); }
+		tr.status-good td { background-color: rgba(16, 185, 129, 0.1); border-right: 4px solid var(--success-color); }
+
+		/* Modals */
+		.modal-overlay {
+			position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+			background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1000;
+		}
+		.modal { background: var(--card-bg); padding: 2rem; border-radius: var(--radius); width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
+		.detail-row { display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding: 0.5rem 0; }
+		.detail-row span:first-child { font-weight: bold; color: var(--text-secondary); }
+
+		@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+		/* Responsive */
+		@media (max-width: 768px) {
+			.nav-links { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--card-bg); padding: 0.5rem; display: flex; justify-content: space-around; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); z-index: 200; }
+			.nav-links button { display: flex; flex-direction: column; align-items: center; font-size: 0.8rem; padding: 5px; }
+			.nav-links button i { font-size: 1.2rem; margin-bottom: 2px; }
+			.desktop-only { display: none; }
+			body { padding-bottom: 80px; }
+		}
+	</style>
+
+	<!-- Firebase (compat) -->
+	<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+	<!-- Navigation -->
+	<nav>
+		<div style="display:flex;align-items:center;gap:12px;">
+			<div class="logo"><i class="fas fa-tv"></i> IPTV Manager</div>
+			<div id="dbStatus" style="font-size:0.9rem; color:#6b7280;">DB: ...</div>
+		</div>
+		<div class="nav-links">
+			<button onclick="showSection('dashboard')" class="active" id="nav-dashboard">
+				<i class="fas fa-home"></i> <span class="desktop-only">الرئيسية</span>
+			</button>
+			<button onclick="showSection('add')" id="nav-add">
+				<i class="fas fa-user-plus"></i> <span class="desktop-only">إضافة</span>
+			</button>
+			<button onclick="requestSettingsAccess()" id="nav-settings">
+				<i class="fas fa-cogs"></i> <span class="desktop-only">الإعدادات</span>
+			</button>
+			<button onclick="showSection('trash')" id="nav-trash">
+				<i class="fas fa-trash-alt"></i> <span class="desktop-only">المحذوفات</span>
+			</button>
+		</div>
+	</nav>
+
+	<div class="container">
+		
+		<!-- DASHBOARD SECTION -->
+		<div id="dashboard" class="section active">
+			<div class="card">
+				<div class="section-title" style="flex-wrap: wrap; gap: 10px;">
+					<h3><i class="fas fa-users"></i> قائمة المشتركين</h3>
+					
+					<div style="margin-right: auto; display: flex; gap: 5px; flex-wrap: wrap; align-items: center;">
+						<!-- فلتر الحالة الجديد -->
+						<select id="filterStatus" class="form-control" style="width: 200px; padding: 5px; height: 40px; font-weight: bold;" onchange="updateFilter()">
+							<option value="all">الكل (ترتيب حسب الأولوية)</option>
+							<option value="warning">أقل من شهر (تحذير)</option>
+							<option value="expired">المنتهي</option>
+							<option value="connected">المتصل (أكثر من شهر)</option>
+						</select>
+        
+						<!-- مربع البحث -->
+						<input type="text" id="searchInput" placeholder="بحث بالاسم..." class="form-control" style="width: 180px; height: 40px;" onkeyup="renderTable()">
+					</div>
+				</div>
+				
+				<div class="table-container">
+					<table>
+						<thead>
+							<tr>
+								<th>الاسم</th>
+								<th>البداية</th>
+								<th>المدة</th>
+								<th>الانتهاء</th>
+								<th>المتبقي</th>
+								<th>إجراءات</th>
+							</tr>
+						</thead>
+						<tbody id="subscribersTableBody">
+							<!-- Rows loaded by JS -->
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+
+		<!-- ADD/EDIT SECTION -->
+		<div id="add" class="section">
+			<div class="card">
+				<div class="section-title">
+					<h3 id="formTitle"><i class="fas fa-user-plus"></i> إضافة مشترك جديد</h3>
+				</div>
+				<form id="subscriberForm" onsubmit="saveSubscriber(event)">
+					<input type="hidden" id="editId">
+					
+					<h4>معلومات أساسية</h4>
+					<div class="form-grid">
+						<div class="form-group">
+							<label>اسم المشترك</label>
+							<input type="text" id="name" class="form-control" required>
+						</div>
+						<div class="form-group">
+							<label>رقم الهاتف</label>
+							<input type="tel" id="phone" class="form-control" required>
+						</div>
+						<div class="form-group">
+							<label>تاريخ البدء</label>
+							<input type="date" id="startDate" class="form-control" required>
+						</div>
+						<div class="form-group">
+							<label>مدة الاشتراك (أشهر)</label>
+							<input type="number" id="duration" class="form-control" required min="1">
+						</div>
+					</div>
+
+					<h4>معلومات مالية (مخفية)</h4>
+					<div class="form-grid">
+						<div class="form-group">
+							<label>مبلغ IPTV المدفوع</label>
+							<input type="number" id="iptvPrice" class="form-control">
+						</div>
+						<div class="form-group">
+							<label>مبلغ IBO المدفوع</label>
+							<input type="number" id="iboPrice" class="form-control">
+						</div>
+					</div>
+
+					<h4>معلومات السيرفر</h4>
+					<div class="form-grid">
+						<div class="form-group">
+							<label>Host / URL</label>
+							<input type="text" id="host" class="form-control">
+						</div>
+						<div class="form-group">
+							<label>Username</label>
+							<input type="text" id="username" class="form-control">
+						</div>
+						<div class="form-group">
+							<label>Password</label>
+							<input type="text" id="password" class="form-control">
+						</div>
+						<div class="form-group">
+							<label>M3U Line</label>
+							<input type="text" id="m3u" class="form-control">
+						</div>
+					</div>
+
+					<h4>IBO Player</h4>
+					<div class="form-grid">
+						<div class="form-group">
+							<label>MAC Address</label>
+							<input type="text" id="iboMac" class="form-control">
+						</div>
+						<div class="form-group">
+							<label>IBO Key/Pass</label>
+							<input type="text" id="iboKey" class="form-control">
+						</div>
+						<div class="form-group">
+							<label>تاريخ التفعيل</label>
+							<input type="date" id="iboDate" class="form-control">
+						</div>
+						<div class="form-group">
+							<label>مدة التفعيل</label>
+							<select id="iboDuration" class="form-control">
+								<option value="12">سنة</option>
+								<option value="999">مدى الحياة</option>
+							</select>
+						</div>
+					</div>
+
+					<div style="margin-top: 1rem; text-align: left;">
+						<button type="button" class="btn btn-warning" onclick="resetForm()">إلغاء</button>
+						<button type="submit" class="btn btn-primary">حفظ البيانات</button>
+					</div>
+				</form>
+			</div>
+		</div>
+
+		<!-- SETTINGS SECTION -->
+		<div id="settings" class="section">
+			<div class="card">
+				<div class="section-title">
+					<h3><i class="fas fa-shield-alt"></i> إعدادات المدير</h3>
+					<button class="btn btn-primary" onclick="toggleDarkMode()">
+						<i class="fas fa-moon"></i> الوضع الليلي
+					</button>
+				</div>
+
+				<div class="form-group">
+					<label>تنبيه انتهاء الاشتراك (بالأيام)</label>
+					<div style="display: flex; gap: 10px;">
+						<input type="number" id="warningThresholdInput" class="form-control" style="width: 100px;" value="30">
+						<button onclick="saveSettings()" class="btn btn-success">حفظ الإعداد</button>
+					</div>
+					<small>يحدد متى ينتقل المشترك إلى اللون البرتقالي (خانة أقل من شهر).</small>
+				</div>
+
+				<hr style="margin: 2rem 0; border-color: var(--border-color);">
+
+				<h3><i class="fas fa-money-bill-wave"></i> التقرير المالي</h3>
+				<div class="table-container">
+					<table>
+						<thead>
+							<tr>
+								<th>الاسم</th>
+								<th>IPTV سعر</th>
+								<th>IBO سعر</th>
+								<th>المجموع</th>
+							</tr>
+						</thead>
+						<tbody id="financialTableBody"></tbody>
+						<tfoot>
+							<tr style="font-weight: bold; background: var(--bg-color);">
+								<td>الإجمالي</td>
+								<td id="totalIptv">0</td>
+								<td id="totalIbo">0</td>
+								<td id="grandTotal">0</td>
+							</tr>
+						</tfoot>
+					</table>
+				</div>
+			</div>
+		</div>
+
+		<!-- TRASH SECTION -->
+		<div id="trash" class="section">
+			<div class="card" style="border-color: var(--danger-color);">
+				<div class="section-title">
+					<h3 style="color: var(--danger-color);"><i class="fas fa-trash"></i> سلة المهملات</h3>
+				</div>
+				<div class="table-container">
+					<table>
+						<thead>
+							<tr>
+								<th>الاسم</th>
+								<th>الهاتف</th>
+								<th>تاريخ الحذف</th>
+								<th>إجراءات</th>
+							</tr>
+						</thead>
+						<tbody id="trashTableBody"></tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+
+	</div>
+
+	<!-- Modals -->
+	<div id="passwordModal" class="modal-overlay">
+		<div class="modal" style="max-width: 400px; text-align: center;">
+			<h3>أدخل كلمة المرور</h3>
+			<p>هذه المنطقة محمية</p>
+			<input type="password" id="authPassword" class="form-control" style="margin: 1rem 0; text-align: center;" placeholder="****">
+			<button class="btn btn-primary" onclick="checkAuth()">دخول</button>
+			<button class="btn btn-danger" onclick="closeModal('passwordModal')">إلغاء</button>
+		</div>
+	</div>
+
+	<div id="detailsModal" class="modal-overlay">
+		<div class="modal">
+			<div class="section-title">
+				<h3>تفاصيل المشترك</h3>
+				<button onclick="closeModal('detailsModal')" style="background:none; border:none; font-size: 1.2rem; cursor:pointer;">&times;</button>
+			</div>
+			<div id="detailsContent"></div>
+		</div>
+	</div>
+
+	<script>
+		// --- Firebase config & guarded init ---
+		const firebaseConfig = {
+			apiKey: "AIzaSyAzDIFcPtoXDV1kuAAjWoV049l58OJeYJs",
+			authDomain: "control-iptv.firebaseapp.com",
+			projectId: "control-iptv",
+			storageBucket: "control-iptv.firebasestorage.app",
+			messagingSenderId: "927697392506",
+			appId: "1:927697392506:web:5e0ad135afc7bef46c3cc3",
+			measurementId: "G-Z0V1ZNG4LL"
+		};
+
+		let firebaseAvailable = false;
+		let db = null;
+		if (typeof window.firebase !== 'undefined' && window.firebase) {
+			try {
+				if (!firebase.apps || firebase.apps.length === 0) firebase.initializeApp(firebaseConfig);
+				if (typeof firebase.firestore === 'function') {
+					db = firebase.firestore();
+					firebaseAvailable = true;
+				} else {
+					console.warn('firebase.firestore غير متوفر بعد التهيئة');
+				}
+			} catch (err) {
+				console.error('Firebase init failed:', err);
+			}
+		} else {
+			console.warn('Firebase library not available');
+		}
+
+		// --- State ---
+		let subscribers = [];
+		let trashSubscribers = [];
+		let config = { warningDays: 30, darkMode: false };
+		let currentFilter = localStorage.getItem('tableFilter') || 'all';
+
+		// --- Helpers ---
+		function safeGet(id) { return document.getElementById(id); }
+
+		function setDbStatus(ok, msg) {
+			const el = safeGet('dbStatus');
+			if (!el) { if (msg) console.info('DB status:', ok, msg); return; }
+			el.innerText = ok ? 'DB: متصل' : 'DB: غير متصل';
+			el.style.color = ok ? '#10b981' : '#ef4444';
+			if (msg) console.info('Firebase status:', msg);
+		}
+
+		function getEndDate(start, months) {
+			let d = new Date(start || Date.now());
+			if (isNaN(d.getTime())) d = new Date();
+			d.setMonth(d.getMonth() + (parseInt(months) || 0));
+			return d;
+		}
+		function getDaysRemaining(endDateStr) {
+			const end = new Date(endDateStr);
+			if (isNaN(end.getTime())) return -9999;
+			return Math.ceil((end - new Date()) / (1000 * 60 * 60 * 24));
+		}
+		function getPriorityScore(days) {
+			if (days > 0 && days < config.warningDays) return 1;
+			if (days >= config.warningDays) return 2;
+			return 3;
+		}
+
+		// --- Modal helpers ---
+		function openModal(id) { const m = safeGet(id); if (m) m.style.display = 'flex'; }
+		function closeModal(id) { const m = safeGet(id); if (m) m.style.display = 'none'; }
+		window.openModal = openModal; window.closeModal = closeModal;
+
+		// --- Firestore helpers (guarded) ---
+		async function checkFirebase() {
+			if (!firebaseAvailable || !db) { setDbStatus(false, 'Firebase غير متاح'); return false; }
+			try { await db.collection('config').doc('app').get(); setDbStatus(true); return true; }
+			catch (err) { console.error('Firebase check failed', err); setDbStatus(false, err.message || err); return false; }
+		}
+
+		async function saveToFirestore(collection, id, payload) {
+			if (!firebaseAvailable || !db) return false;
+			try { await db.collection(collection).doc(String(id)).set(payload); return true; }
+			catch (e) { console.error('saveToFirestore', e); return false; }
+		}
+		async function deleteFromFirestore(collection, id) {
+			if (!firebaseAvailable || !db) return false;
+			try { await db.collection(collection).doc(String(id)).delete(); return true; }
+			catch (e) { console.error('deleteFromFirestore', e); return false; }
+		}
+
+		// --- Load listeners / fallback ---
+		async function loadFromFirestore() {
+			const ok = await checkFirebase();
+			if (!ok) {
+				try {
+					subscribers = JSON.parse(localStorage.getItem('subscribers')) || [];
+					trashSubscribers = JSON.parse(localStorage.getItem('trashSubscribers')) || [];
+					const localConfig = JSON.parse(localStorage.getItem('appConfig'));
+					if (localConfig) config = localConfig;
+				} catch (e) { console.warn(e); }
+				const wEl = safeGet('warningThresholdInput'); if (wEl) wEl.value = config.warningDays || 30;
+				const fEl = safeGet('filterStatus'); if (fEl) fEl.value = currentFilter;
+				renderTable(); renderTrashTable(); renderFinancialTable();
+				return;
+			}
+
+			// realtime listeners
+			try {
+				db.collection('subscribers').onSnapshot(snap => {
+					subscribers = snap.docs.map(d => {
+						const data = d.data() || {};
+						data.id = (data.id !== undefined && data.id !== null) ? String(data.id) : String(d.id);
+						data.iptvPrice = Number(data.iptvPrice || 0);
+						data.iboPrice = Number(data.iboPrice || 0);
+						return data;
+					}).sort((a,b)=> (a.name||'').localeCompare(b.name||''));
+					try { localStorage.setItem('subscribers', JSON.stringify(subscribers)); } catch(e){}
+					renderTable(); renderFinancialTable();
+				}, err => { console.error('subscribers onSnapshot error', err); setDbStatus(false, err.message || err); });
+			} catch (err) { console.error('attach subscribers listener', err); setDbStatus(false, err.message || err); }
+
+			try {
+				db.collection('trashSubscribers').onSnapshot(snap => {
+					trashSubscribers = snap.docs.map(d => {
+						const data = d.data() || {};
+						data.id = (data.id !== undefined && data.id !== null) ? String(data.id) : String(d.id);
+						return data;
+					}).sort((a,b)=> (a.name||'').localeCompare(b.name||''));
+					try { localStorage.setItem('trashSubscribers', JSON.stringify(trashSubscribers)); } catch(e){}
+					if (safeGet('trash') && safeGet('trash').classList.contains('active')) renderTrashTable();
+				}, err => { console.error('trash onSnapshot error', err); setDbStatus(false, err.message || err); });
+			} catch (err) { console.error('attach trash listener', err); setDbStatus(false, err.message || err); }
+
+			try {
+				db.collection('config').doc('app').onSnapshot(doc => {
+					if (doc.exists) config = doc.data();
+					else saveToFirestore('config', 'app', config);
+					if (config.darkMode) document.body.classList.add('dark-mode'); else document.body.classList.remove('dark-mode');
+					const wEl = safeGet('warningThresholdInput'); if (wEl) wEl.value = config.warningDays || 30;
+					try { localStorage.setItem('appConfig', JSON.stringify(config)); } catch(e){}
+					renderTable();
+				}, err => { console.error('config onSnapshot error', err); setDbStatus(false, err.message || err); });
+			} catch (err) { console.error('attach config listener', err); setDbStatus(false, err.message || err); }
+		}
+
+		// --- CRUD logic with offline fallback ---
+		async function saveSubscriberToFirestoreLocal(sub) {
+			const payload = Object.assign({}, sub, { id: String(sub.id), iptvPrice: Number(sub.iptvPrice||0), iboPrice: Number(sub.iboPrice||0), duration: Number(sub.duration||0) });
+			return await saveToFirestore('subscribers', payload.id, payload);
+		}
+		async function saveSubscriber(e) {
+			e.preventDefault();
+			const idInput = safeGet('editId').value;
+			const idStr = idInput ? String(idInput) : String(Date.now());
+			const startDate = safeGet('startDate').value;
+			const duration = parseInt(safeGet('duration').value) || 0;
+			const endDate = getEndDate(startDate, duration).toISOString().split('T')[0];
+			const subData = {
+				id: idStr,
+				name: safeGet('name').value,
+				phone: safeGet('phone').value,
+				startDate, duration, endDate,
+				iptvPrice: parseFloat(safeGet('iptvPrice').value) || 0,
+				iboPrice: parseFloat(safeGet('iboPrice').value) || 0,
+				host: safeGet('host').value || '',
+				username: safeGet('username').value || '',
+				password: safeGet('password').value || '',
+				m3u: safeGet('m3u').value || '',
+				iboMac: safeGet('iboMac').value || '',
+				iboKey: safeGet('iboKey').value || '',
+				iboDate: safeGet('iboDate').value || '',
+				iboDuration: safeGet('iboDuration').value || '12'
+			};
+
+			const ok = await saveSubscriberToFirestoreLocal(subData);
+			// update local always
+			const idx = subscribers.findIndex(s => String(s.id) === idStr);
+			if (idx > -1) subscribers[idx] = subData; else subscribers.push(subData);
+			try { localStorage.setItem('subscribers', JSON.stringify(subscribers)); } catch(e){}
+			if (ok) alert('تم الحفظ في السحابة'); else alert('تم الحفظ محلياً (بدون اتصال بالسحابة)');
+			resetForm(); showSection('dashboard'); renderTable(); renderFinancialTable();
+		}
+
+		async function softDelete(id) {
+			if (!confirm('نقل للسلة؟')) return;
+			id = String(id);
+			const index = subscribers.findIndex(s => String(s.id) === id);
+			if (index === -1) return;
+			const sub = Object.assign({}, subscribers[index]);
+			sub.deletedAt = new Date().toISOString().split('T')[0];
+
+			const okTrash = await saveToFirestore('trashSubscribers', sub.id, sub);
+			let okRemove = false;
+			if (okTrash) okRemove = await deleteFromFirestore('subscribers', id);
+
+			trashSubscribers.push(sub);
+			subscribers.splice(index,1);
+			try { localStorage.setItem('subscribers', JSON.stringify(subscribers)); localStorage.setItem('trashSubscribers', JSON.stringify(trashSubscribers)); } catch(e){}
+			if (okTrash) { if (!okRemove) console.warn('failed to remove from server'); alert('تم النقل للسلة'); }
+			else alert('تم النقل للسلة محلياً (بدون اتصال بالسحابة)');
+			renderTable(); renderTrashTable(); renderFinancialTable();
+		}
+
+		async function restoreSubscriber(id) {
+			id = String(id);
+			const index = trashSubscribers.findIndex(s => String(s.id) === id);
+			if (index === -1) return;
+			const sub = Object.assign({}, trashSubscribers[index]); delete sub.deletedAt;
+			const ok = await saveToFirestore('subscribers', sub.id, sub);
+			if (ok) await deleteFromFirestore('trashSubscribers', id);
+			subscribers.push(sub); trashSubscribers.splice(index,1);
+			try { localStorage.setItem('subscribers', JSON.stringify(subscribers)); localStorage.setItem('trashSubscribers', JSON.stringify(trashSubscribers)); } catch(e){}
+			alert(ok ? 'تمت الاستعادة وحفظها في السحابة' : 'تمت الاستعادة محلياً');
+			renderTable(); renderTrashTable(); renderFinancialTable();
+		}
+
+		async function hardDelete(id) {
+			if (!confirm('حذف نهائي؟')) return;
+			id = String(id);
+			const index = trashSubscribers.findIndex(s => String(s.id) === id);
+			if (index === -1) return;
+			trashSubscribers.splice(index,1);
+			try { localStorage.setItem('trashSubscribers', JSON.stringify(trashSubscribers)); } catch(e){}
+			const ok = await deleteFromFirestore('trashSubscribers', id);
+			alert(ok ? 'تم الحذف نهائياً' : 'تم الحذف محلياً');
+			renderTrashTable(); renderFinancialTable();
+		}
+
+		function loadSubscriberForEdit(id) {
+			id = String(id);
+			const sub = subscribers.find(s => String(s.id) === id);
+			if (!sub) return;
+			safeGet('editId').value = sub.id;
+			safeGet('name').value = sub.name || '';
+			safeGet('phone').value = sub.phone || '';
+			safeGet('startDate').value = sub.startDate || '';
+			safeGet('duration').value = sub.duration || '';
+			safeGet('iptvPrice').value = sub.iptvPrice || 0;
+			safeGet('iboPrice').value = sub.iboPrice || 0;
+			safeGet('host').value = sub.host || '';
+			safeGet('username').value = sub.username || '';
+			safeGet('password').value = sub.password || '';
+			safeGet('m3u').value = sub.m3u || '';
+			safeGet('iboMac').value = sub.iboMac || '';
+			safeGet('iboKey').value = sub.iboKey || '';
+			safeGet('iboDate').value = sub.iboDate || '';
+			safeGet('iboDuration').value = sub.iboDuration || '12';
+			safeGet('formTitle').innerText = 'تعديل مشترك: ' + (sub.name || '');
+			showSection('add', true);
+		}
+
+		function resetForm() {
+			const form = safeGet('subscriberForm');
+			if (form) form.reset();
+			const eid = safeGet('editId'); if (eid) eid.value = '';
+			const ft = safeGet('formTitle'); if (ft) ft.innerHTML = '<i class="fas fa-user-plus"></i> إضافة مشترك جديد';
+		}
+
+		// --- Rendering ---
+		function renderTable() {
+			const tbody = safeGet('subscribersTableBody');
+			if (!tbody) return;
+			const searchInput = safeGet('searchInput');
+			const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+			tbody.innerHTML = '';
+
+			let processed = subscribers.filter(sub => {
+				const days = getDaysRemaining(sub.endDate);
+				if (searchTerm && !(sub.name||'').toLowerCase().includes(searchTerm)) return false;
+				if (currentFilter === 'all') return true;
+				if (currentFilter === 'warning') return days > 0 && days < config.warningDays;
+				if (currentFilter === 'expired') return days <= 0;
+				if (currentFilter === 'connected') return days >= config.warningDays;
+				return true;
+			});
+
+			processed.sort((a,b) => {
+				const aDays = getDaysRemaining(a.endDate), bDays = getDaysRemaining(b.endDate);
+				if (currentFilter === 'all') {
+					const sA = getPriorityScore(aDays), sB = getPriorityScore(bDays);
+					if (sA !== sB) return sA - sB;
+				}
+				return (a.name||'').localeCompare(b.name||'');
+			});
+
+			if (processed.length === 0) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">لا توجد بيانات</td></tr>'; return; }
+
+			processed.forEach(sub => {
+				const row = document.createElement('tr');
+				const daysRemaining = getDaysRemaining(sub.endDate);
+				row.className = daysRemaining <= 0 ? 'status-expired' : (daysRemaining < config.warningDays ? 'status-warning' : 'status-good');
+				row.innerHTML = `
+					<td>${sub.name || '-'}</td>
+					<td>${sub.startDate || '-'}</td>
+					<td>${sub.duration || '-'}</td>
+					<td>${sub.endDate || '-'}</td>
+					<td>${daysRemaining}</td>
+					<td>
+						<button class="btn btn-sm btn-primary" onclick='loadSubscriberForEdit(${JSON.stringify(String(sub.id))})'><i class="fas fa-edit"></i></button>
+						<button class="btn btn-sm btn-danger" onclick='softDelete(${JSON.stringify(String(sub.id))})'><i class="fas fa-trash"></i></button>
+						<button class="btn btn-sm btn-primary" onclick='showDetails(${JSON.stringify(String(sub.id))})'><i class="fas fa-eye"></i></button>
+					</td>
+				`;
+				tbody.appendChild(row);
+			});
+		}
+
+		function renderTrashTable() {
+			const tbody = safeGet('trashTableBody');
+			if (!tbody) return;
+			tbody.innerHTML = '';
+			if (!trashSubscribers || trashSubscribers.length === 0) { tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">السلة فارغة</td></tr>'; return; }
+			trashSubscribers.forEach(sub => {
+				const row = document.createElement('tr');
+				row.innerHTML = `
+					<td>${sub.name || '-'}</td>
+					<td>${sub.phone || '-'}</td>
+					<td>${sub.deletedAt || '-'}</td>
+					<td>
+						<button class="btn btn-sm btn-success" onclick='restoreSubscriber(${JSON.stringify(String(sub.id))})'><i class="fas fa-undo"></i></button>
+						<button class="btn btn-sm btn-danger" onclick='hardDelete(${JSON.stringify(String(sub.id))})'><i class="fas fa-trash-alt"></i></button>
+					</td>
+				`;
+				tbody.appendChild(row);
+			});
+		}
+
+		function renderFinancialTable() {
+			const tbody = safeGet('financialTableBody');
+			if (!tbody) return;
+			tbody.innerHTML = '';
+			let tIptv = 0, tIbo = 0, tGrand = 0;
+			subscribers.forEach(sub => {
+				const iptv = Number(sub.iptvPrice || 0), ibo = Number(sub.iboPrice || 0), total = iptv + ibo;
+				tIptv += iptv; tIbo += ibo; tGrand += total;
+				const tr = document.createElement('tr');
+				tr.innerHTML = `<td>${sub.name || '-'}</td><td>${iptv.toFixed(2)}</td><td>${ibo.toFixed(2)}</td><td>${total.toFixed(2)}</td>`;
+				tbody.appendChild(tr);
+			});
+			const elIptv = safeGet('totalIptv'), elIbo = safeGet('totalIbo'), elGrand = safeGet('grandTotal');
+			if (elIptv) elIptv.innerText = tIptv.toFixed(2);
+			if (elIbo) elIbo.innerText = tIbo.toFixed(2);
+			if (elGrand) elGrand.innerText = tGrand.toFixed(2);
+		}
+
+		// --- Add: showDetails (fill details modal safely) ---
+		function showDetails(id) {
+	id = String(id);
+	const sub = subscribers.find(s => String(s.id) === id);
+	if (!sub) { alert('المشترك غير موجود'); return; }
+
+	const content = safeGet('detailsContent');
+	if (!content) return;
+
+	content.innerHTML = `
+		<div class="detail-row"><span>الاسم:</span> <span>${sub.name || '-'}</span></div>
+		<div class="detail-row"><span>الهاتف:</span> <span>${sub.phone || '-'}</span></div>
+		<div class="detail-row"><span>تاريخ البداية:</span> <span>${sub.startDate || '-'}</span></div>
+		<div class="detail-row"><span>المدة:</span> <span>${sub.duration || '-'}</span></div>
+		<div class="detail-row"><span>تاريخ الانتهاء:</span> <span>${sub.endDate || '-'}</span></div>
+		<div class="detail-row"><span>IPTV سعر:</span> <span>${(sub.iptvPrice || 0).toFixed(2)}</span></div>
+		<div class="detail-row"><span>IBO سعر:</span> <span>${(sub.iboPrice || 0).toFixed(2)}</span></div>
+		<div class="detail-row"><span>Host:</span> <span>${sub.host || '-'}</span></div>
+		<div class="detail-row"><span>User:</span> <span>${sub.username || '-'}</span></div>
+		<div class="detail-row"><span>Pass:</span> <span>${sub.password || '-'}</span></div>
+		<div class="detail-row"><span>M3U:</span> <span>${sub.m3u || '-'}</span></div>
+		<div class="detail-row"><span>MAC:</span> <span>${sub.iboMac || '-'}</span></div>
+		<div class="detail-row"><span>Key:</span> <span>${sub.iboKey || '-'}</span></div>
+		<div class="detail-row"><span>تاريخ التفعيل:</span> <span>${sub.iboDate || '-'}</span></div>
+		<div class="detail-row"><span>مدة التفعيل:</span> <span>${sub.iboDuration === '999' ? 'مدى الحياة' : (sub.iboDuration || '-')}</span></div>
+	`;
+	openModal('detailsModal');
+}
+window.showDetails = showDetails;
+
+		window.showSection = (id, skipReset=false) => {
+			document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+			const el = safeGet(id);
+			if (el) el.classList.add('active');
+			document.querySelectorAll('.nav-links button').forEach(btn=>btn.classList.remove('active'));
+			const navBtn = safeGet('nav-'+id); if (navBtn) navBtn.classList.add('active');
+			if (id === 'trash') renderTrashTable();
+			if (id === 'add' && !skipReset) resetForm();
+		};
+
+		window.requestSettingsAccess = () => { openModal('passwordModal'); const p = safeGet('authPassword'); if (p) { p.value=''; p.focus(); } };
+		window.checkAuth = () => {
+			const pass = (safeGet('authPassword')||{}).value || '';
+			if (pass === '1988') { closeModal('passwordModal'); renderFinancialTable(); showSection('settings'); }
+			else alert('كلمة المرور غير صحيحة');
+		};
+		window.toggleDarkMode = () => {
+			document.body.classList.toggle('dark-mode');
+			config.darkMode = document.body.classList.contains('dark-mode');
+			saveToFirestore('config','app',config).catch(()=>{});
+			try { localStorage.setItem('appConfig', JSON.stringify(config)); } catch(e){}
+		};
+
+		// expose functions
+		window.loadFromFirestore = loadFromFirestore;
+		window.renderTable = renderTable;
+		window.renderTrashTable = renderTrashTable;
+		window.renderFinancialTable = renderFinancialTable;
+
+		// init
+		document.addEventListener('DOMContentLoaded', () => { loadFromFirestore(); });
+	</script>
+</body>
+</html>
