@@ -106,6 +106,46 @@
 		.detail-row { display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding: 0.5rem 0; }
 		.detail-row span:first-child { font-weight: bold; color: var(--text-secondary); }
 
+		/* Toast */
+		.toast-container {
+			position: fixed;
+			top: 16px;
+			left: 16px;
+			display: flex;
+			flex-direction: column;
+			gap: 10px;
+			z-index: 2000;
+			pointer-events: none;
+		}
+		.toast {
+			pointer-events: auto;
+			background: var(--card-bg);
+			border: 1px solid var(--border-color);
+			box-shadow: var(--shadow);
+			border-radius: var(--radius);
+			padding: 0.85rem 1rem;
+			min-width: 240px;
+			max-width: 360px;
+			display: flex;
+			align-items: flex-start;
+			gap: 10px;
+			animation: fadeIn 0.25s ease-in-out;
+		}
+		.toast .toast-icon { margin-top: 2px; }
+		.toast.toast-success { border-right: 4px solid var(--success-color); }
+		.toast.toast-error { border-right: 4px solid var(--danger-color); }
+		.toast.toast-warning { border-right: 4px solid var(--warning-color); }
+		.toast.toast-info { border-right: 4px solid var(--primary-color); }
+		.toast .toast-message { color: var(--text-color); line-height: 1.4; }
+		.toast .toast-close {
+			margin-right: auto;
+			background: none;
+			border: none;
+			cursor: pointer;
+			color: var(--text-secondary);
+			font-size: 1.1rem;
+		}
+
 		@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
 		/* Responsive */
@@ -351,6 +391,19 @@
 	</div>
 
 	<!-- Modals -->
+	<div id="toastContainer" class="toast-container"></div>
+
+	<div id="confirmModal" class="modal-overlay">
+		<div class="modal" style="max-width: 420px; text-align: center;">
+			<h3 id="confirmTitle">تأكيد</h3>
+			<p id="confirmMessage" style="margin-top: 0.75rem; color: var(--text-secondary);"></p>
+			<div style="display:flex; gap:10px; justify-content:center; margin-top: 1.25rem;">
+				<button id="confirmOkBtn" class="btn btn-danger">تأكيد</button>
+				<button id="confirmCancelBtn" class="btn btn-primary">إلغاء</button>
+			</div>
+		</div>
+	</div>
+
 	<div id="passwordModal" class="modal-overlay">
 		<div class="modal" style="max-width: 400px; text-align: center;">
 			<h3>أدخل كلمة المرور</h3>
@@ -409,6 +462,17 @@
 
 		// --- Helpers ---
 		function safeGet(id) { return document.getElementById(id); }
+		function dedupeById(arr) {
+			const out = [];
+			const seen = new Set();
+			(arr || []).forEach(item => {
+				const key = item && item.id !== undefined && item.id !== null ? String(item.id) : '';
+				if (!key || seen.has(key)) return;
+				seen.add(key);
+				out.push(item);
+			});
+			return out;
+		}
 
 		function setDbStatus(ok, msg) {
 			const el = safeGet('dbStatus');
@@ -439,6 +503,61 @@
 		function openModal(id) { const m = safeGet(id); if (m) m.style.display = 'flex'; }
 		function closeModal(id) { const m = safeGet(id); if (m) m.style.display = 'none'; }
 		window.openModal = openModal; window.closeModal = closeModal;
+
+		function showToast(message, type = 'info', timeoutMs = 2600) {
+			const container = safeGet('toastContainer');
+			if (!container) return;
+			const t = document.createElement('div');
+			t.className = `toast toast-${type}`;
+			const icon = type === 'success' ? 'fa-circle-check' : type === 'error' ? 'fa-circle-xmark' : type === 'warning' ? 'fa-triangle-exclamation' : 'fa-circle-info';
+			t.innerHTML = `
+				<div class="toast-icon"><i class="fa-solid ${icon}"></i></div>
+				<div class="toast-message">${String(message || '')}</div>
+				<button class="toast-close" aria-label="close">&times;</button>
+			`;
+			const closeBtn = t.querySelector('.toast-close');
+			if (closeBtn) closeBtn.onclick = () => { if (t && t.parentNode) t.parentNode.removeChild(t); };
+			container.appendChild(t);
+			if (timeoutMs && timeoutMs > 0) {
+				setTimeout(() => { if (t && t.parentNode) t.parentNode.removeChild(t); }, timeoutMs);
+			}
+		}
+
+		function confirmDialog(message, opts = {}) {
+			return new Promise(resolve => {
+				const titleEl = safeGet('confirmTitle');
+				const msgEl = safeGet('confirmMessage');
+				const okBtn = safeGet('confirmOkBtn');
+				const cancelBtn = safeGet('confirmCancelBtn');
+				const overlay = safeGet('confirmModal');
+				if (!titleEl || !msgEl || !okBtn || !cancelBtn || !overlay) { resolve(false); return; }
+
+				titleEl.textContent = opts.title || 'تأكيد';
+				msgEl.textContent = message || '';
+				okBtn.textContent = opts.okText || 'تأكيد';
+				cancelBtn.textContent = opts.cancelText || 'إلغاء';
+
+				const okClass = opts.okClass || 'btn-danger';
+				okBtn.className = `btn ${okClass}`;
+				cancelBtn.className = 'btn btn-primary';
+
+				let done = false;
+				const cleanup = () => {
+					okBtn.onclick = null;
+					cancelBtn.onclick = null;
+					overlay.onclick = null;
+					closeModal('confirmModal');
+				};
+
+				okBtn.onclick = () => { if (done) return; done = true; cleanup(); resolve(true); };
+				cancelBtn.onclick = () => { if (done) return; done = true; cleanup(); resolve(false); };
+				overlay.onclick = (e) => {
+					if (e && e.target === overlay) { if (done) return; done = true; cleanup(); resolve(false); }
+				};
+
+				openModal('confirmModal');
+			});
+		}
 
 		// --- Firestore helpers (guarded) ---
 		async function checkFirebase() {
@@ -547,12 +666,13 @@
 			const idx = subscribers.findIndex(s => String(s.id) === idStr);
 			if (idx > -1) subscribers[idx] = subData; else subscribers.push(subData);
 			try { localStorage.setItem('subscribers', JSON.stringify(subscribers)); } catch(e){}
-			if (ok) alert('تم الحفظ في السحابة'); else alert('تم الحفظ محلياً (بدون اتصال بالسحابة)');
+			if (ok) showToast('تم الحفظ في السحابة', 'success'); else showToast('تم الحفظ محلياً (بدون اتصال بالسحابة)', 'warning');
 			resetForm(); showSection('dashboard'); renderTable(); renderFinancialTable();
 		}
 
 		async function softDelete(id) {
-			if (!confirm('نقل للسلة؟')) return;
+			const confirmed = await confirmDialog('نقل للسلة؟', { title: 'تأكيد', okText: 'نقل', okClass: 'btn-danger' });
+			if (!confirmed) return;
 			id = String(id);
 			const index = subscribers.findIndex(s => String(s.id) === id);
 			if (index === -1) return;
@@ -563,11 +683,15 @@
 			let okRemove = false;
 			if (okTrash) okRemove = await deleteFromFirestore('subscribers', id);
 
-			trashSubscribers.push(sub);
+			const existingTrashIndex = trashSubscribers.findIndex(s => String(s.id) === String(sub.id));
+			if (existingTrashIndex > -1) trashSubscribers[existingTrashIndex] = sub;
+			else trashSubscribers.push(sub);
 			subscribers.splice(index,1);
+			subscribers = dedupeById(subscribers);
+			trashSubscribers = dedupeById(trashSubscribers);
 			try { localStorage.setItem('subscribers', JSON.stringify(subscribers)); localStorage.setItem('trashSubscribers', JSON.stringify(trashSubscribers)); } catch(e){}
-			if (okTrash) { if (!okRemove) console.warn('failed to remove from server'); alert('تم النقل للسلة'); }
-			else alert('تم النقل للسلة محلياً (بدون اتصال بالسحابة)');
+			if (okTrash) { if (!okRemove) console.warn('failed to remove from server'); showToast('تم النقل للسلة', 'success'); }
+			else showToast('تم النقل للسلة محلياً (بدون اتصال بالسحابة)', 'warning');
 			renderTable(); renderTrashTable(); renderFinancialTable();
 		}
 
@@ -578,21 +702,28 @@
 			const sub = Object.assign({}, trashSubscribers[index]); delete sub.deletedAt;
 			const ok = await saveToFirestore('subscribers', sub.id, sub);
 			if (ok) await deleteFromFirestore('trashSubscribers', id);
-			subscribers.push(sub); trashSubscribers.splice(index,1);
+			const existingSubIndex = subscribers.findIndex(s => String(s.id) === String(sub.id));
+			if (existingSubIndex > -1) subscribers[existingSubIndex] = sub;
+			else subscribers.push(sub);
+			trashSubscribers = (trashSubscribers || []).filter(s => String(s.id) !== id);
+			subscribers = dedupeById(subscribers);
+			trashSubscribers = dedupeById(trashSubscribers);
 			try { localStorage.setItem('subscribers', JSON.stringify(subscribers)); localStorage.setItem('trashSubscribers', JSON.stringify(trashSubscribers)); } catch(e){}
-			alert(ok ? 'تمت الاستعادة وحفظها في السحابة' : 'تمت الاستعادة محلياً');
+			showToast(ok ? 'تمت الاستعادة وحفظها في السحابة' : 'تمت الاستعادة محلياً', ok ? 'success' : 'warning');
 			renderTable(); renderTrashTable(); renderFinancialTable();
 		}
 
 		async function hardDelete(id) {
-			if (!confirm('حذف نهائي؟')) return;
+			const confirmed = await confirmDialog('حذف نهائي؟', { title: 'تأكيد الحذف', okText: 'حذف', okClass: 'btn-danger' });
+			if (!confirmed) return;
 			id = String(id);
-			const index = trashSubscribers.findIndex(s => String(s.id) === id);
-			if (index === -1) return;
-			trashSubscribers.splice(index,1);
+			const beforeLen = (trashSubscribers || []).length;
+			trashSubscribers = (trashSubscribers || []).filter(s => String(s.id) !== id);
+			if ((trashSubscribers || []).length === beforeLen) return;
+			trashSubscribers = dedupeById(trashSubscribers);
 			try { localStorage.setItem('trashSubscribers', JSON.stringify(trashSubscribers)); } catch(e){}
 			const ok = await deleteFromFirestore('trashSubscribers', id);
-			alert(ok ? 'تم الحذف نهائياً' : 'تم الحذف محلياً');
+			showToast(ok ? 'تم الحذف نهائياً' : 'تم الحذف محلياً', ok ? 'success' : 'warning');
 			renderTrashTable(); renderFinancialTable();
 		}
 
@@ -717,7 +848,7 @@
 		function showDetails(id) {
 	id = String(id);
 	const sub = subscribers.find(s => String(s.id) === id);
-	if (!sub) { alert('المشترك غير موجود'); return; }
+	if (!sub) { showToast('المشترك غير موجود', 'error'); return; }
 
 	const content = safeGet('detailsContent');
 	if (!content) return;
@@ -757,7 +888,7 @@ window.showDetails = showDetails;
 		window.checkAuth = () => {
 			const pass = (safeGet('authPassword')||{}).value || '';
 			if (pass === '1988') { closeModal('passwordModal'); renderFinancialTable(); showSection('settings'); }
-			else alert('كلمة المرور غير صحيحة');
+			else showToast('كلمة المرور غير صحيحة', 'error');
 		};
 		window.toggleDarkMode = () => {
 			document.body.classList.toggle('dark-mode');
