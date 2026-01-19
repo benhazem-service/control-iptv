@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>IPTV Pro Manager</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -11,113 +11,163 @@
         :root {
             --primary: #4f46e5;
             --primary-dark: #4338ca;
-            --bg: #f8fafc;
+            --bg: #f1f5f9;
             --surface: #ffffff;
-            --text: #1e293b;
+            --text: #0f172a;
             --text-light: #64748b;
             --border: #e2e8f0;
             --danger: #ef4444;
             --success: #10b981;
             --warning: #f59e0b;
             --info: #3b82f6;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --radius: 0.75rem;
+            --radius: 12px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
-        body.dark-mode {
-            --bg: #0f172a;
-            --surface: #1e293b;
-            --text: #f8fafc;
-            --text-light: #94a3b8;
-            --border: #334155;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg); color: var(--text); padding-bottom: 80px; min-height: 100vh; }
+
+        /* --- Auth --- */
+        #auth-container {
+            display: flex; justify-content: center; align-items: center; height: 100vh;
+            background: linear-gradient(135deg, var(--primary), #818cf8); padding: 20px;
         }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
-        body { background-color: var(--bg); color: var(--text); transition: 0.3s; min-height: 100vh; padding-bottom: 60px; }
-
-        /* Auth Styles */
-        #auth-container { display: flex; justify-content: center; align-items: center; height: 100vh; background: linear-gradient(135deg, var(--primary), #818cf8); }
-        .auth-card { background: var(--surface); padding: 2.5rem; border-radius: 1rem; width: 100%; max-width: 400px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); text-align: center; }
-        .password-wrapper { position: relative; width: 100%; margin-bottom: 1rem; }
-        .password-wrapper input { width: 100%; padding: 0.8rem 1rem; padding-left: 40px; border: 1px solid var(--border); border-radius: 0.5rem; outline: none; background: var(--bg); color: var(--text); }
-        .password-wrapper i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-light); cursor: pointer; z-index: 10; }
-        .auth-input { width: 100%; padding: 0.8rem 1rem; margin-bottom: 1rem; border: 1px solid var(--border); border-radius: 0.5rem; outline: none; background: var(--bg); color: var(--text); }
-        .auth-btn { width: 100%; padding: 0.8rem; background: var(--primary); color: white; border: none; border-radius: 0.5rem; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .auth-btn:hover { background: var(--primary-dark); }
-        .forgot-link { display: block; margin-bottom: 1rem; font-size: 0.85rem; color: var(--primary); text-decoration: underline; cursor: pointer; text-align: right; }
-        .remember-me-container { display: flex; align-items: center; gap: 8px; margin-bottom: 1rem; font-size: 0.9rem; color: var(--text); }
-        .remember-me-container input { width: 16px; height: 16px; cursor: pointer; }
-
-        /* App Layout */
-        #app-container { display: none; }
-        nav { background: var(--surface); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow); position: sticky; top: 0; z-index: 100; }
-        .logo { font-size: 1.4rem; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 8px; }
-        .nav-links button { background: transparent; border: none; padding: 0.6rem 1.2rem; cursor: pointer; color: var(--text-light); font-weight: 600; font-size: 0.95rem; transition: 0.2s; border-radius: 0.5rem; display: inline-flex; align-items: center; gap: 6px; }
-        .nav-links button:hover { background: rgba(79, 70, 229, 0.1); color: var(--primary); }
-        .nav-links button.active { background: var(--primary); color: white; }
-        .nav-links button.hidden { display: none; } 
-        .container { max-width: 1400px; margin: 2rem auto; padding: 0 1rem; }
-        .section { display: none; animation: fadeIn 0.4s; }
-        .section.active { display: block; }
-
-        /* Dashboard */
-        .dashboard-grid { display: grid; grid-template-columns: 3fr 1fr; gap: 1.5rem; transition: 0.3s ease; }
-        .dashboard-grid.full-width { grid-template-columns: 1fr; }
-        .chart-container { background: var(--surface); padding: 1rem; border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--border); height: 320px; position: sticky; top: 100px; transition: 0.3s ease; }
-        .chart-container.hidden { display: none; }
-
-        /* Controls Area */
-        .controls-area { display: flex; gap: 10px; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; }
-        .search-box { flex: 1; min-width: 200px; }
-        .filter-box { width: 200px; }
-
-        /* Components */
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
-        .stat-card { background: var(--surface); padding: 1.5rem; border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--border); display: flex; flex-direction: column; gap: 5px; }
-        .stat-title { font-size: 0.9rem; color: var(--text-light); }
-        .stat-value { font-size: 1.8rem; font-weight: 800; color: var(--text); }
-
-        /* Forms */
-        .form-section-title { font-size: 1.1rem; font-weight: 700; color: var(--primary); margin-bottom: 1rem; border-bottom: 2px solid var(--border); padding-bottom: 0.5rem; display: flex; align-items: center; gap: 8px; }
-        .elegant-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
-        .form-card { background: var(--surface); padding: 1.5rem; border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--border); }
-        .form-group { margin-bottom: 1rem; }
-        .form-group label { display: block; margin-bottom: 0.4rem; font-weight: 500; font-size: 0.9rem; color: var(--text-light); }
-        .form-control { width: 100%; padding: 0.7rem; border: 1px solid var(--border); border-radius: 0.5rem; background: var(--bg); color: var(--text); font-size: 0.95rem; transition: 0.2s; }
-        .form-control:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
-
-        /* Tables */
-        .table-wrapper { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; border: 1px solid var(--border); }
-        table { width: 100%; border-collapse: collapse; white-space: nowrap; }
-        th { background: var(--bg); color: var(--text-light); font-weight: 600; padding: 1rem; text-align: right; }
-        td { padding: 1rem; border-top: 1px solid var(--border); color: var(--text); vertical-align: middle; }
-        tr:hover td { background: rgba(0,0,0,0.02); }
+        .auth-card {
+            background: var(--surface); padding: 2rem; border-radius: 1rem; width: 100%; max-width: 400px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2); text-align: center;
+        }
+        .password-wrapper { position: relative; margin-bottom: 1rem; }
+        .password-wrapper i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-light); }
         
-        .status-badge { padding: 0.35rem 0.85rem; border-radius: 2rem; font-size: 0.85rem; font-weight: 700; display: inline-block; min-width: 60px; text-align: center; cursor: pointer; transition: transform 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-        .status-badge:hover { transform: scale(1.1); filter: brightness(95%); }
-        .status-active { background: #dcfce7; color: #166534; }
-        .status-warning { background: #fef9c3; color: #854d0e; }
-        .status-expired { background: #fee2e2; color: #991b1b; }
-        .status-none { background: #e2e8f0; color: #475569; cursor: default; }
-
-        .btn { padding: 0.5rem 0.8rem; border: none; border-radius: 0.5rem; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: 5px; transition: 0.2s; font-size: 0.9rem; min-width: 35px; }
+        /* Inputs & Buttons (Touch Friendly) */
+        .auth-input, .form-control {
+            width: 100%; padding: 12px 15px; margin-bottom: 10px; border: 1px solid var(--border);
+            border-radius: var(--radius); outline: none; font-size: 16px; background: #fff;
+        }
+        .password-wrapper input { padding-left: 40px; }
+        
+        .auth-btn, .btn {
+            width: 100%; padding: 14px; border: none; border-radius: var(--radius);
+            font-weight: bold; font-size: 16px; cursor: pointer; display: flex; 
+            align-items: center; justify-content: center; gap: 8px; transition: 0.2s;
+        }
+        .auth-btn { background: var(--primary); color: white; margin-top: 10px; }
+        
         .btn-primary { background: var(--primary); color: white; }
         .btn-success { background: var(--success); color: white; }
         .btn-danger { background: var(--danger); color: white; }
-        .btn-warning { background: var(--warning); color: #fff; } 
-        .btn-sm { padding: 0.4rem 0.6rem; font-size: 0.85rem; }
-        .btn i { pointer-events: none; }
+        .btn-warning { background: var(--warning); color: white; }
+        .btn-sm { padding: 8px 12px; font-size: 14px; width: auto; }
+
+        /* --- Navbar (Top) --- */
+        nav {
+            background: var(--surface); padding: 15px 20px; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .logo { font-size: 1.3rem; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+        .top-actions { display: flex; gap: 15px; }
+        .icon-btn { background: none; border: none; font-size: 1.4rem; color: var(--text-light); cursor: pointer; }
+
+        /* --- Bottom Navigation (Mobile) --- */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; width: 100%; background: var(--surface);
+            display: flex; justify-content: space-around; padding: 10px 0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 999;
+            border-top: 1px solid var(--border);
+        }
+        .nav-item {
+            background: none; border: none; display: flex; flex-direction: column; align-items: center;
+            color: var(--text-light); font-size: 0.8rem; cursor: pointer; width: 20%;
+        }
+        .nav-item i { font-size: 1.4rem; margin-bottom: 4px; }
+        .nav-item.active { color: var(--primary); }
+
+        /* --- Layout --- */
+        .container { padding: 15px; max-width: 1000px; margin: 0 auto; }
+        .section { display: none; animation: fadeIn 0.3s; }
+        .section.active { display: block; }
+
+        /* --- Cards & Dashboard --- */
+        .dashboard-grid { display: flex; flex-direction: column; gap: 15px; }
+        .card { background: var(--surface); padding: 15px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); }
+        
+        .controls-area { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
+        .chart-container { height: 250px; margin-bottom: 15px; }
+        .chart-container.hidden { display: none; }
+
+        /* --- Responsive Table (Card View) --- */
+        table { width: 100%; border-collapse: collapse; }
+        
+        /* Desktop View */
+        @media (min-width: 769px) {
+            .bottom-nav { display: none; }
+            th, td { padding: 12px; text-align: right; border-bottom: 1px solid var(--border); }
+            th { background: #f8fafc; color: var(--text-light); }
+            .desktop-nav { display: flex; gap: 10px; }
+        }
+
+        /* Mobile View */
+        @media (max-width: 768px) {
+            .desktop-nav { display: none; } /* Hide text links on mobile */
+            
+            /* Turn Table into Cards */
+            table, thead, tbody, th, td, tr { display: block; }
+            thead { display: none; } /* Hide headers */
+            
+            tr {
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: var(--radius);
+                margin-bottom: 15px;
+                padding: 15px;
+                box-shadow: var(--shadow);
+                position: relative;
+            }
+
+            td {
+                padding: 8px 0;
+                border: none;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border-bottom: 1px dashed #eee;
+            }
+            
+            td:last-child { border-bottom: none; padding-top: 15px; justify-content: flex-end; gap: 10px; }
+            
+            /* Labels */
+            td::before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: var(--text-light);
+                font-size: 0.9rem;
+            }
+
+            /* Adjust Badges position in card */
+            .status-badge { font-size: 0.8rem; padding: 4px 10px; }
+        }
+
+        /* Status Colors */
+        .status-badge { border-radius: 20px; font-weight: bold; }
+        .status-active { background: #dcfce7; color: #166534; }
+        .status-warning { background: #fef9c3; color: #854d0e; }
+        .status-expired { background: #fee2e2; color: #991b1b; }
+        .status-none { background: #f1f5f9; color: #64748b; }
+
+        /* Stats */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .stat-card { text-align: center; padding: 15px; border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow); }
+        .stat-value { font-size: 1.5rem; font-weight: 800; display: block; margin-top: 5px; }
+        .stat-title { font-size: 0.8rem; color: var(--text-light); }
 
         /* Modals */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; place-items: center; z-index: 1000; backdrop-filter: blur(2px); }
-        .modal { background: var(--surface); padding: 2rem; border-radius: var(--radius); width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); }
-        .detail-row { display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); padding: 8px 0; align-items: center;}
-        .detail-row span:first-child { color: var(--text-light); font-weight: bold; }
-        .date-popover { position: fixed; background: #333; color: #fff; padding: 10px 15px; border-radius: 8px; z-index: 2000; font-size: 0.9rem; display: none; pointer-events: none; box-shadow: 0 4px 10px rgba(0,0,0,0.3); text-align: center; }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; place-items: center; z-index: 2000; backdrop-filter: blur(3px); }
+        .modal { background: var(--surface); width: 95%; max-width: 500px; max-height: 85vh; overflow-y: auto; border-radius: 16px; padding: 20px; }
+        .detail-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f1f5f9; }
+        
+        .date-popover { background: #333; color: #fff; padding: 8px 12px; border-radius: 8px; position: fixed; z-index: 3000; font-size: 0.85rem; display: none; pointer-events: none; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        @media (max-width: 900px) { .dashboard-grid { grid-template-columns: 1fr; } .chart-container { order: -1; margin-bottom: 1rem; height: 250px; position: static; } }
     </style>
 </head>
 <body>
@@ -126,136 +176,139 @@
     <div id="auth-container">
         <div class="auth-card">
             <h2 style="color: var(--primary); margin-bottom: 0.5rem;">IPTV Pro</h2>
-            <p style="color: var(--text-light); margin-bottom: 1.5rem;">إدارة اشتراكاتك باحترافية</p>
+            <p style="color: var(--text-light); margin-bottom: 2rem;">لوحة تحكم ذكية</p>
+            
             <form id="auth-form">
                 <input type="email" id="auth-email" class="auth-input" placeholder="البريد الإلكتروني" required>
+                
                 <div class="password-wrapper">
-                    <input type="password" id="auth-password" placeholder="كلمة المرور" required>
+                    <input type="password" id="auth-password" class="auth-input" placeholder="كلمة المرور" required>
                     <i class="fas fa-eye" onclick="togglePasswordVisibility('auth-password', this)"></i>
                 </div>
+
                 <div class="password-wrapper" id="confirm-password-wrapper" style="display: none;">
-                    <input type="password" id="auth-confirm-password" placeholder="تأكيد كلمة المرور">
+                    <input type="password" id="auth-confirm-password" class="auth-input" placeholder="تأكيد كلمة المرور">
                     <i class="fas fa-eye" onclick="togglePasswordVisibility('auth-confirm-password', this)"></i>
                 </div>
-                <div class="remember-me-container" id="remember-me-wrapper">
-                    <input type="checkbox" id="remember-me">
-                    <label for="remember-me">تذكرني</label>
+
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px; justify-content: flex-start;">
+                    <input type="checkbox" id="remember-me" style="width: 18px; height: 18px;">
+                    <label for="remember-me" style="font-size: 0.95rem;">تذكرني</label>
                 </div>
-                <span id="forgot-password-link" class="forgot-link" onclick="resetPassword()">نسيت كلمة المرور؟</span>
+
+                <div style="text-align: left; margin-bottom: 20px;">
+                    <span id="forgot-password-link" style="color: var(--primary); font-size: 0.9rem; text-decoration: underline; cursor: pointer;" onclick="resetPassword()">نسيت كلمة المرور؟</span>
+                </div>
+
                 <button type="submit" class="auth-btn" id="auth-submit-btn">تسجيل الدخول</button>
             </form>
-            <p style="margin-top:1rem; font-size:0.9rem; color:var(--text-light); cursor:pointer;" onclick="toggleAuthMode()" id="auth-switch-text">ليس لديك حساب؟ إنشاء حساب</p>
-            <p id="auth-error" style="color:var(--danger); font-size:0.85rem; margin-top:1rem; display:none;"></p>
+            
+            <p style="margin-top:20px; color:var(--text-light);" onclick="toggleAuthMode()" id="auth-switch-text">إنشاء حساب جديد</p>
+            <p id="auth-error" style="color:var(--danger); background:#fee2e2; padding:10px; border-radius:8px; margin-top:10px; display:none;"></p>
         </div>
     </div>
 
-    <!-- MAIN APP -->
+    <!-- APP CONTAINER -->
     <div id="app-container">
+        
+        <!-- TOP NAVBAR -->
         <nav>
             <div class="logo"><i class="fas fa-layer-group"></i> IPTV Pro</div>
-            <div class="nav-links">
-                <button onclick="toggleChartVisibility()" title="إظهار/إخفاء المبيان"><i class="fas fa-chart-bar"></i></button>
-                <button onclick="showSection('dashboard')" class="active" id="nav-dashboard"><i class="fas fa-home"></i> <span>الرئيسية</span></button>
-                <button onclick="showSection('add'); resetForm();" id="nav-add"><i class="fas fa-user-plus"></i> <span>إضافة</span></button>
-                <button onclick="showSection('finance')" id="nav-finance"><i class="fas fa-wallet"></i> <span>المالية</span></button>
-                <button onclick="showSection('trash')" id="nav-trash"><i class="fas fa-trash"></i> <span>المحذوفات</span></button>
-                <button onclick="showSection('settings')" id="nav-settings" class="hidden"><i class="fas fa-cogs"></i> <span>الإعدادات</span></button>
-                <button onclick="logout()" style="color: var(--danger);"><i class="fas fa-sign-out-alt"></i></button>
+            <div class="top-actions">
+                <button class="icon-btn" onclick="toggleChartVisibility()"><i class="fas fa-chart-pie"></i></button>
+                <button class="icon-btn" style="color:var(--danger)" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>
             </div>
         </nav>
 
+        <!-- MAIN CONTENT -->
         <div class="container">
-            <div id="loading" style="text-align: center; padding: 20px; display: none;"><i class="fas fa-circle-notch fa-spin fa-2x" style="color: var(--primary);"></i></div>
+            <div id="loading" style="text-align: center; padding: 20px; display: none;">
+                <i class="fas fa-spinner fa-spin fa-2x" style="color: var(--primary);"></i>
+            </div>
 
             <!-- 1. DASHBOARD -->
             <div id="dashboard" class="section active">
-                <div class="dashboard-grid full-width" id="dashboardGrid">
-                    <div class="card" style="background: var(--surface); padding: 1.5rem; border-radius: var(--radius); border: 1px solid var(--border);">
-                        
-                        <!-- Controls Area: Search & Filter -->
-                        <div class="controls-area">
-                            <h3 style="margin-left: 15px;">قائمة المشتركين</h3>
-                            
-                            <!-- Filter Dropdown -->
-                            <select id="filterSelect" class="form-control filter-box" onchange="renderTable()">
-                                <option value="all">الكل (أقل وقت IPTV)</option>
-                                <option value="iptv_asc">أقل وقت متبقي (IPTV)</option>
-                                <option value="iptv_desc">أكثر وقت متبقي (IPTV)</option>
-                                <option value="ibo_lifetime">إيبو مدى الحياة</option>
-                                <option value="ibo_asc">أقل وقت متبقي (إيبو)</option>
-                            </select>
+                <div class="chart-container hidden" id="chartContainer">
+                    <canvas id="salesChart"></canvas>
+                </div>
 
-                            <input type="text" id="searchInput" placeholder="بحث بالاسم..." class="form-control search-box" onkeyup="renderTable()">
-                        </div>
+                <div class="controls-area">
+                    <select id="filterSelect" class="form-control" onchange="renderTable()">
+                        <option value="all">الكل (الأقرب للانتهاء)</option>
+                        <option value="iptv_asc">IPTV: الأقل وقتاً</option>
+                        <option value="iptv_desc">IPTV: الأكثر وقتاً</option>
+                        <option value="ibo_lifetime">IBO: مدى الحياة</option>
+                        <option value="ibo_asc">IBO: الأقل وقتاً</option>
+                    </select>
+                    <input type="text" id="searchInput" placeholder="بحث بالاسم..." class="form-control" onkeyup="renderTable()">
+                </div>
 
-                        <div class="table-wrapper">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>الاسم</th>
-                                        <th>IPTV (يوم)</th>
-                                        <th>IBO (يوم)</th>
-                                        <th>الجهاز</th>
-                                        <th>إجراءات</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="subscribersTableBody"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <div class="chart-container hidden" id="chartContainer">
-                        <canvas id="salesChart"></canvas>
-                    </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>الاسم</th>
+                                <th>IPTV (يوم)</th>
+                                <th>IBO (يوم)</th>
+                                <th>الجهاز</th>
+                                <th>إجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="subscribersTableBody"></tbody>
+                    </table>
                 </div>
             </div>
 
             <!-- 2. ADD SUBSCRIBER -->
             <div id="add" class="section">
-                <h2 id="formTitle" style="margin-bottom: 1.5rem;">إضافة مشترك جديد</h2>
+                <h3 id="formTitle" style="margin-bottom: 20px; color: var(--primary);">إضافة مشترك</h3>
                 <form id="subscriberForm">
                     <input type="hidden" id="editId">
-                    <div class="elegant-form">
-                        <!-- Basic Info -->
-                        <div class="form-card">
-                            <div class="form-section-title"><i class="fas fa-user"></i> البيانات الأساسية</div>
-                            <div class="form-group"><label>اسم المشترك</label><input type="text" id="name" class="form-control" required></div>
-                            <div class="form-group"><label>رقم الهاتف</label><input type="tel" id="phone" class="form-control"></div>
-                            <div class="form-group"><label>نوع الجهاز</label><select id="deviceType" class="form-control"><option value="">-- اختر الجهاز --</option></select></div>
-                        </div>
-                        <!-- IPTV -->
-                        <div class="form-card">
-                            <div class="form-section-title"><i class="fas fa-tv"></i> اشتراك IPTV</div>
-                            <div class="form-group"><label>تاريخ البدء</label><input type="date" id="startDate" class="form-control" required></div>
-                            <div class="form-group"><label>المدة (أشهر)</label><input type="number" id="duration" class="form-control" required min="1"></div>
-                            <div class="form-group"><label>سعر البيع (IPTV)</label><input type="number" id="iptvPrice" class="form-control" placeholder="0.00"></div>
-                        </div>
-                        <!-- IBO -->
-                        <div class="form-card">
-                            <div class="form-section-title"><i class="fas fa-play-circle"></i> تفعيل IBO Player</div>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                                <div class="form-group"><label>MAC Address</label><input type="text" id="iboMac" class="form-control" placeholder="MAC"></div>
-                                <div class="form-group"><label>Device Key</label><input type="text" id="iboKey" class="form-control" placeholder="Key"></div>
-                            </div>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                                <div class="form-group"><label>تاريخ التفعيل</label><input type="date" id="iboStartDate" class="form-control"></div>
-                                <div class="form-group"><label>مدة التفعيل</label><select id="iboDuration" class="form-control"><option value="">بدون تفعيل</option><option value="year">سنة واحدة</option><option value="lifetime">مدى الحياة</option></select></div>
-                            </div>
-                            <div class="form-group"><label>سعر البيع (IBO)</label><input type="number" id="iboPrice" class="form-control" placeholder="0.00"></div>
-                        </div>
-                        <!-- Server -->
-                        <div class="form-card">
-                            <div class="form-section-title"><i class="fas fa-server"></i> بيانات السيرفر</div>
-                            <div class="form-group"><label>Host / URL</label><input type="text" id="host" class="form-control"></div>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                                <div class="form-group"><label>Username</label><input type="text" id="username" class="form-control"></div>
-                                <div class="form-group"><label>Password</label><input type="text" id="password" class="form-control"></div>
-                            </div>
-                            <div class="form-group"><label>M3U URL</label><textarea id="m3u" class="form-control" rows="3" placeholder="http://..."></textarea></div>
-                        </div>
+                    
+                    <!-- Basic -->
+                    <div class="card" style="margin-bottom: 15px;">
+                        <h4 style="margin-bottom:10px; color:var(--text-light)">البيانات الأساسية</h4>
+                        <input type="text" id="name" class="form-control" placeholder="اسم المشترك" required>
+                        <input type="tel" id="phone" class="form-control" placeholder="رقم الهاتف">
+                        <select id="deviceType" class="form-control"><option value="">-- اختر الجهاز --</option></select>
                     </div>
-                    <div style="margin-top: 2rem; text-align: left;">
-                        <button type="button" class="btn btn-warning" onclick="showSection('dashboard');">إلغاء</button>
-                        <button type="submit" class="btn btn-primary" style="padding: 0.7rem 2rem;">حفظ المشترك</button>
+
+                    <!-- IPTV -->
+                    <div class="card" style="margin-bottom: 15px;">
+                        <h4 style="margin-bottom:10px; color:var(--text-light)">اشتراك IPTV</h4>
+                        <label>تاريخ البدء</label>
+                        <input type="date" id="startDate" class="form-control" required>
+                        <input type="number" id="duration" class="form-control" placeholder="المدة (أشهر)" required>
+                        <input type="number" id="iptvPrice" class="form-control" placeholder="السعر">
+                    </div>
+
+                    <!-- IBO -->
+                    <div class="card" style="margin-bottom: 15px;">
+                        <h4 style="margin-bottom:10px; color:var(--text-light)">IBO Player</h4>
+                        <input type="text" id="iboMac" class="form-control" placeholder="MAC Address">
+                        <input type="text" id="iboKey" class="form-control" placeholder="Key">
+                        <label>تاريخ التفعيل</label>
+                        <input type="date" id="iboStartDate" class="form-control">
+                        <select id="iboDuration" class="form-control">
+                            <option value="">بدون تفعيل</option>
+                            <option value="year">سنة واحدة</option>
+                            <option value="lifetime">مدى الحياة</option>
+                        </select>
+                        <input type="number" id="iboPrice" class="form-control" placeholder="السعر">
+                    </div>
+
+                    <!-- Server -->
+                    <div class="card" style="margin-bottom: 20px;">
+                        <h4 style="margin-bottom:10px; color:var(--text-light)">السيرفر</h4>
+                        <input type="text" id="host" class="form-control" placeholder="Host / URL">
+                        <input type="text" id="username" class="form-control" placeholder="Username">
+                        <input type="text" id="password" class="form-control" placeholder="Password">
+                        <textarea id="m3u" class="form-control" rows="3" placeholder="M3U Link"></textarea>
+                    </div>
+
+                    <div style="display: flex; gap: 10px;">
+                        <button type="submit" class="btn btn-primary">حفظ</button>
+                        <button type="button" class="btn btn-warning" onclick="showSection('dashboard')">إلغاء</button>
                     </div>
                 </form>
             </div>
@@ -263,67 +316,95 @@
             <!-- 3. FINANCE -->
             <div id="finance" class="section">
                 <div class="stats-grid">
-                    <div class="stat-card" style="border-right: 4px solid var(--primary);"><span class="stat-title">مجموع المبيعات</span><span class="stat-value" id="totalSales">0.00</span></div>
-                    <div class="stat-card" style="border-right: 4px solid var(--warning);"><span class="stat-title">مجموع التعبئة</span><span class="stat-value" id="totalRecharge">0.00</span></div>
-                    <div class="stat-card" style="border-right: 4px solid var(--success);"><span class="stat-title">الصافي</span><span class="stat-value" id="netProfit">0.00</span></div>
-                </div>
-                <div class="form-card" style="margin-bottom: 2rem;">
-                    <div class="form-section-title">إضافة تعبئة رصيد</div>
-                    <div style="display: flex; gap: 10px; align-items: flex-end;">
-                        <div style="flex: 1;"><label>المبلغ</label><input type="number" id="rechargeAmount" class="form-control"></div>
-                        <div style="flex: 2;"><label>ملاحظة</label><input type="text" id="rechargeNote" class="form-control"></div>
-                        <button onclick="addRecharge()" class="btn btn-success" style="height: 42px;">إضافة</button>
+                    <div class="stat-card">
+                        <span class="stat-title">المبيعات</span>
+                        <span class="stat-value" id="totalSales" style="color:var(--primary)">0</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-title">التعبئة</span>
+                        <span class="stat-value" id="totalRecharge" style="color:var(--warning)">0</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-title">الصافي</span>
+                        <span class="stat-value" id="netProfit" style="color:var(--success)">0</span>
                     </div>
                 </div>
-                <div class="table-wrapper">
-                    <h4 style="padding: 1rem;">سجل التعبئات</h4>
-                    <table><thead><tr><th>المبلغ</th><th>التاريخ</th><th>الملاحظة</th><th>حذف</th></tr></thead><tbody id="rechargeTableBody"></tbody></table>
+
+                <div class="card">
+                    <h4>إضافة تعبئة</h4>
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <input type="number" id="rechargeAmount" class="form-control" placeholder="المبلغ">
+                        <button onclick="addRecharge()" class="btn btn-success" style="width: auto;">+</button>
+                    </div>
+                    <input type="text" id="rechargeNote" class="form-control" placeholder="ملاحظة" style="margin-top: 10px;">
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <h4>سجل التعبئات</h4>
+                    <div id="rechargeListMobile" style="margin-top: 10px;"></div>
                 </div>
             </div>
 
             <!-- 4. TRASH -->
             <div id="trash" class="section">
-                <div class="table-wrapper" style="border-color: var(--danger);">
-                    <h3 style="padding:1rem; color:var(--danger)">سلة المهملات</h3>
-                    <table><tbody id="trashTableBody"></tbody></table>
-                </div>
+                <h3 style="color:var(--danger); margin-bottom:15px;">سلة المهملات</h3>
+                <div id="trashListMobile"></div>
             </div>
 
             <!-- 5. SETTINGS -->
             <div id="settings" class="section">
-                <div class="form-card">
-                    <div class="form-section-title">إدارة الأجهزة</div>
-                    <div style="display: flex; gap: 10px; margin-bottom: 1rem;">
+                <div class="card">
+                    <h4>إدارة الأجهزة</h4>
+                    <div style="display: flex; gap: 10px; margin: 10px 0;">
                         <input type="text" id="newDeviceInput" class="form-control" placeholder="اسم الجهاز">
-                        <button class="btn btn-primary" onclick="addDevice()">إضافة</button>
+                        <button class="btn btn-primary" onclick="addDevice()" style="width: auto;">+</button>
                     </div>
-                    <div id="devicesList" style="display: flex; gap: 10px; flex-wrap: wrap;"></div>
+                    <div id="devicesList" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
                 </div>
             </div>
+
         </div>
+
+        <!-- BOTTOM NAV (Mobile Only) -->
+        <div class="bottom-nav">
+            <button class="nav-item active" id="btn-dashboard" onclick="showSection('dashboard')">
+                <i class="fas fa-home"></i> <span>الرئيسية</span>
+            </button>
+            <button class="nav-item" id="btn-add" onclick="showSection('add'); resetForm();">
+                <i class="fas fa-plus-circle"></i> <span>إضافة</span>
+            </button>
+            <button class="nav-item" id="btn-finance" onclick="showSection('finance')">
+                <i class="fas fa-wallet"></i> <span>المالية</span>
+            </button>
+            <button class="nav-item" id="btn-trash" onclick="showSection('trash')">
+                <i class="fas fa-trash"></i> <span>المحذوفات</span>
+            </button>
+            <button class="nav-item hidden" id="btn-settings" onclick="showSection('settings')">
+                <i class="fas fa-cogs"></i> <span>الإعدادات</span>
+            </button>
+        </div>
+
     </div>
 
     <!-- Modals -->
     <div id="detailsModal" class="modal-overlay">
         <div class="modal">
-            <div style="display:flex; justify-content:space-between; margin-bottom:1rem;">
-                <h3>تفاصيل المشترك الكاملة</h3>
-                <button onclick="document.getElementById('detailsModal').style.display='none'" style="border:none;background:none;font-size:1.5rem;">&times;</button>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3>التفاصيل</h3>
+                <button onclick="document.getElementById('detailsModal').style.display='none'" style="background:none; border:none; font-size: 1.5rem;">&times;</button>
             </div>
             <div id="detailsContent"></div>
-            <div style="margin-top: 20px; text-align: left; border-top: 1px solid #eee; padding-top: 15px;">
-                <button id="modalEditBtn" class="btn btn-warning">تعديل المشترك</button>
+            <div style="margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <button id="modalEditBtn" class="btn btn-warning">تعديل</button>
+                <button onclick="document.getElementById('detailsModal').style.display='none'" class="btn btn-primary">إغلاق</button>
             </div>
         </div>
     </div>
 
-    <div id="dateModal" class="modal-overlay">
-        <div class="modal" style="max-width: 300px; text-align: center; padding: 1.5rem;">
-            <h4 id="dateModalTitle" style="color:var(--primary); margin-bottom:1rem;"></h4>
-            <div style="margin-bottom:0.5rem"><strong>البداية:</strong> <span id="dateModalStart"></span></div>
-            <div style="margin-bottom:1.5rem"><strong>الانتهاء:</strong> <span id="dateModalEnd"></span></div>
-            <button class="btn btn-primary" onclick="document.getElementById('dateModal').style.display='none'">إغلاق</button>
-        </div>
+    <div id="dateModal" class="date-popover">
+        <div id="dateModalTitle" style="font-weight:bold; margin-bottom:5px; color:#fbbf24"></div>
+        <div>البدء: <span id="dateModalStart"></span></div>
+        <div>الانتهاء: <span id="dateModalEnd"></span></div>
     </div>
 
     <!-- Firebase -->
@@ -332,6 +413,7 @@
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail, setPersistence, browserLocalPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, where, getDocs, setDoc, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+        // CONFIG
         const firebaseConfig = {
             apiKey: "AIzaSyA3EcwcPbdJo5j79fS0j2Hhw2W7LLEWxEc",
             authDomain: "control-iptv-49b63.firebaseapp.com",
@@ -373,11 +455,15 @@
             onSnapshot(doc(db, "users", uid), (snap) => {
                 if (snap.exists()) {
                     isAdmin = (snap.data().role === 'admin');
+                    const settingsBtn = document.getElementById('btn-settings');
+                    const navSettings = document.getElementById('nav-settings');
                     if (isAdmin) {
-                        document.getElementById('nav-settings').classList.remove('hidden');
+                        navSettings.classList.remove('hidden');
+                        settingsBtn.classList.remove('hidden');
                         claimOrphanedSubscribers(uid); 
                     } else {
-                        document.getElementById('nav-settings').classList.add('hidden');
+                        navSettings.classList.add('hidden');
+                        settingsBtn.classList.add('hidden');
                     }
                 }
             });
@@ -410,113 +496,36 @@
 
         async function claimOrphanedSubscribers(adminUid) {
             const allSubs = await getDocs(collection(db, "subscribers"));
-            allSubs.forEach(async (d) => {
-                const data = d.data();
-                if (!data.userId) { await updateDoc(d.ref, { userId: adminUid }); }
-            });
+            allSubs.forEach(async (d) => { if (!d.data().userId) await updateDoc(d.ref, { userId: adminUid }); });
         }
 
-        window.toggleAuthMode = () => {
-            isLoginMode = !isLoginMode;
-            document.getElementById('auth-submit-btn').innerText = isLoginMode ? "تسجيل الدخول" : "إنشاء حساب";
-            document.getElementById('auth-switch-text').innerText = isLoginMode ? "ليس لديك حساب؟ إنشاء حساب" : "لديك حساب؟ تسجيل الدخول";
-            
-            const confirmWrapper = document.getElementById('confirm-password-wrapper');
-            const forgotLink = document.getElementById('forgot-password-link');
-            const rememberWrapper = document.getElementById('remember-me-wrapper');
-            
-            if (isLoginMode) {
-                confirmWrapper.style.display = 'none';
-                document.getElementById('auth-confirm-password').removeAttribute('required');
-                forgotLink.style.display = 'block';
-                rememberWrapper.style.display = 'flex';
-            } else {
-                confirmWrapper.style.display = 'block';
-                document.getElementById('auth-confirm-password').setAttribute('required', 'true');
-                forgotLink.style.display = 'none';
-                rememberWrapper.style.display = 'none';
-            }
-            document.getElementById('auth-error').style.display = 'none';
-        };
-
-        window.togglePasswordVisibility = (fieldId, icon) => {
-            const input = document.getElementById(fieldId);
-            if (input.type === "password") {
-                input.type = "text";
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                input.type = "password";
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            }
-        };
-
-        window.resetPassword = async () => {
-            const email = document.getElementById('auth-email').value;
-            if(!email) { alert("الرجاء إدخال البريد الإلكتروني أولاً"); return; }
-            try { await sendPasswordResetEmail(auth, email); alert("تم إرسال رابط إعادة التعيين"); } catch(e) { alert("خطأ: " + e.message); }
-        };
-
-        document.getElementById('auth-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('auth-email').value;
-            const pass = document.getElementById('auth-password').value;
-            const confirmPass = document.getElementById('auth-confirm-password').value;
-            const rememberMe = document.getElementById('remember-me').checked;
-            const errorEl = document.getElementById('auth-error');
-            errorEl.style.display = 'none';
-
-            try {
-                if (isLoginMode) {
-                    const persistence = rememberMe ? browserLocalPersistence : browserSessionPersistence;
-                    await setPersistence(auth, persistence);
-                    await signInWithEmailAndPassword(auth, email, pass);
-                } else {
-                    if(pass !== confirmPass) { throw new Error("كلمة المرور غير متطابقة"); }
-                    if(pass.length < 6) { throw new Error("كلمة المرور ضعيفة"); }
-                    const cred = await createUserWithEmailAndPassword(auth, email, pass);
-                    const usersSnap = await getDocs(collection(db, 'users'));
-                    const role = usersSnap.empty ? 'admin' : 'user';
-                    await setDoc(doc(db, 'users', cred.user.uid), { email, role, createdAt: new Date().toISOString() });
-                }
-            } catch (err) { errorEl.innerText = err.message; errorEl.style.display = 'block'; }
-        });
-        window.logout = () => signOut(auth);
-
-        window.toggleChartVisibility = () => {
-            const chart = document.getElementById('chartContainer');
-            const grid = document.getElementById('dashboardGrid');
-            if (chart.classList.contains('hidden')) { chart.classList.remove('hidden'); grid.classList.remove('full-width'); } 
-            else { chart.classList.add('hidden'); grid.classList.add('full-width'); }
-        };
-
+        // --- UI Logic ---
         window.showSection = (id) => {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
+            
+            // Top Nav Active
             document.querySelectorAll('.nav-links button').forEach(b => b.classList.remove('active'));
-            document.getElementById('nav-'+id).classList.add('active');
+            const topBtn = document.getElementById('nav-'+id);
+            if(topBtn) topBtn.classList.add('active');
+
+            // Bottom Nav Active
+            document.querySelectorAll('.bottom-nav .nav-item').forEach(b => b.classList.remove('active'));
+            const botBtn = document.getElementById('btn-'+id);
+            if(botBtn) botBtn.classList.add('active');
         }
 
-        // --- FILTER & SORT LOGIC ---
         window.renderTable = () => {
             const tbody = document.getElementById('subscribersTableBody');
             const term = document.getElementById('searchInput').value.toLowerCase();
             const filter = document.getElementById('filterSelect').value;
-            
             tbody.innerHTML = '';
             
-            // 1. Copy array for sorting
             let displayData = [...subscribers];
-
-            // 2. Sorting / Filtering Logic
-            if(filter === 'iptv_asc' || filter === 'all') {
-                displayData.sort((a,b) => new Date(a.endDate) - new Date(b.endDate));
-            } else if (filter === 'iptv_desc') {
-                displayData.sort((a,b) => new Date(b.endDate) - new Date(a.endDate));
-            } else if (filter === 'ibo_lifetime') {
-                displayData = displayData.filter(s => s.iboDuration === 'lifetime');
-            } else if (filter === 'ibo_asc') {
+            if(filter === 'iptv_asc' || filter === 'all') displayData.sort((a,b) => new Date(a.endDate) - new Date(b.endDate));
+            else if (filter === 'iptv_desc') displayData.sort((a,b) => new Date(b.endDate) - new Date(a.endDate));
+            else if (filter === 'ibo_lifetime') displayData = displayData.filter(s => s.iboDuration === 'lifetime');
+            else if (filter === 'ibo_asc') {
                 displayData = displayData.filter(s => s.iboDuration === 'year' && s.iboStartDate);
                 displayData.sort((a,b) => {
                     let endA = new Date(a.iboStartDate); endA.setFullYear(endA.getFullYear()+1);
@@ -549,13 +558,13 @@
 
                     tbody.innerHTML += `
                         <tr>
-                            <td><span style="color:var(--primary);font-weight:bold;cursor:pointer" onclick="showDetails('${sub.id}')">${sub.name}</span></td>
-                            <td><span class="status-badge ${iptvClass}" onclick="showDateDetails('${sub.startDate}', '${sub.endDate}', 'IPTV')">${iptvText}</span></td>
-                            <td><span class="status-badge ${iboClass}" onclick="showDateDetails('${iboStartDate}', '${iboEndDate}', 'IBO Player')">${iboText}</span></td>
-                            <td>${sub.device || '-'}</td>
-                            <td style="white-space:nowrap;">
-                                <button class="btn btn-warning btn-sm" onclick="editSub('${sub.id}')" title="تعديل"><i class="fas fa-edit"></i></button>
-                                <button class="btn btn-danger btn-sm" onclick="moveToTrash('${sub.id}')" title="حذف"><i class="fas fa-trash"></i></button>
+                            <td data-label="الاسم"><span style="color:var(--primary);font-weight:bold;cursor:pointer" onclick="showDetails('${sub.id}')">${sub.name}</span></td>
+                            <td data-label="IPTV"><span class="status-badge ${iptvClass}" onclick="showDateDetails(event, '${sub.startDate}', '${sub.endDate}', 'IPTV')">${iptvText}</span></td>
+                            <td data-label="IBO Player"><span class="status-badge ${iboClass}" onclick="showDateDetails(event, '${iboStartDate}', '${iboEndDate}', 'IBO Player')">${iboText}</span></td>
+                            <td data-label="الجهاز">${sub.device || '-'}</td>
+                            <td data-label="إجراءات">
+                                <button class="btn btn-warning btn-sm" onclick="editSub('${sub.id}')"><i class="fas fa-edit"></i></button>
+                                <button class="btn btn-danger btn-sm" onclick="moveToTrash('${sub.id}')"><i class="fas fa-trash"></i></button>
                             </td>
                         </tr>
                     `;
@@ -563,38 +572,122 @@
             });
         }
 
-        window.showDateDetails = (start, end, title) => {
+        window.showDateDetails = (e, start, end, title) => {
+            e.stopPropagation();
             if(!start) return; 
+            const pop = document.getElementById('dateModal');
             document.getElementById('dateModalTitle').innerText = title;
             document.getElementById('dateModalStart').innerText = start;
             document.getElementById('dateModalEnd').innerText = end;
-            document.getElementById('dateModal').style.display = 'flex';
+            
+            // Position near click
+            pop.style.display = 'block';
+            pop.style.left = (e.clientX - 100) + 'px';
+            pop.style.top = (e.clientY + 20) + 'px';
+            
+            // Hide after 3 seconds
+            setTimeout(() => pop.style.display = 'none', 3000);
+        };
+
+        // --- Render Lists Mobile Friendly ---
+        function renderRechargeTable() {
+            const container = document.getElementById('rechargeListMobile');
+            container.innerHTML = '';
+            recharges.forEach(r => {
+                container.innerHTML += `
+                    <div class="card" style="margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <div style="font-weight:bold; font-size:1.2rem; color:var(--success)">${r.amount}</div>
+                            <div style="font-size:0.8rem; color:var(--text-light)">${r.date.split('T')[0]} - ${r.note}</div>
+                        </div>
+                        <button class="btn btn-danger btn-sm" onclick="deleteRecharge('${r.id}')"><i class="fas fa-trash"></i></button>
+                    </div>
+                `;
+            });
+        }
+
+        window.renderTrash = () => {
+            const container = document.getElementById('trashListMobile');
+            container.innerHTML = '';
+            trash.forEach(i => {
+                container.innerHTML += `
+                    <div class="card" style="margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-weight:bold">${i.name}</span>
+                        <div style="display:flex; gap:5px;">
+                            <button class="btn btn-success btn-sm" onclick="restore('${i.id}')">استعادة</button>
+                            <button class="btn btn-danger btn-sm" onclick="permDelete('${i.id}')">حذف</button>
+                        </div>
+                    </div>
+                `;
+            });
+        };
+
+        // --- Standard Logic (Copied from v12) ---
+        window.toggleAuthMode = () => {
+            isLoginMode = !isLoginMode;
+            document.getElementById('auth-submit-btn').innerText = isLoginMode ? "تسجيل الدخول" : "إنشاء حساب";
+            document.getElementById('auth-switch-text').innerText = isLoginMode ? "ليس لديك حساب؟ إنشاء حساب" : "لديك حساب؟ تسجيل الدخول";
+            document.getElementById('confirm-password-wrapper').style.display = isLoginMode ? 'none' : 'block';
+            document.getElementById('auth-confirm-password').required = !isLoginMode;
+        };
+
+        window.togglePasswordVisibility = (fid, icon) => {
+            const inp = document.getElementById(fid);
+            const isPass = inp.type === 'password';
+            inp.type = isPass ? 'text' : 'password';
+            icon.className = isPass ? 'fas fa-eye-slash' : 'fas fa-eye';
+        };
+
+        document.getElementById('auth-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('auth-email').value;
+            const pass = document.getElementById('auth-password').value;
+            const confirmPass = document.getElementById('auth-confirm-password').value;
+            const rememberMe = document.getElementById('remember-me').checked;
+            
+            try {
+                if (isLoginMode) {
+                    await setPersistence(auth, rememberMe ? browserLocalPersistence : browserSessionPersistence);
+                    await signInWithEmailAndPassword(auth, email, pass);
+                } else {
+                    if(pass !== confirmPass) throw new Error("كلمة المرور غير متطابقة");
+                    if(pass.length < 6) throw new Error("كلمة المرور ضعيفة");
+                    const cred = await createUserWithEmailAndPassword(auth, email, pass);
+                    await setDoc(doc(db, 'users', cred.user.uid), { email, role: 'user', createdAt: new Date().toISOString() });
+                }
+            } catch (err) {
+                const el = document.getElementById('auth-error');
+                el.innerText = err.message; el.style.display = 'block';
+            }
+        });
+
+        window.logout = () => signOut(auth);
+        window.resetPassword = async () => {
+            const email = document.getElementById('auth-email').value;
+            if(email) { await sendPasswordResetEmail(auth, email); alert("تم الإرسال"); } else alert("ادخل الايميل");
+        };
+
+        window.toggleChartVisibility = () => {
+            document.getElementById('chartContainer').classList.toggle('hidden');
         };
 
         function calculateFinances() {
             let sales = subscribers.reduce((acc, s) => acc + (parseFloat(s.iptvPrice)||0) + (parseFloat(s.iboPrice)||0), 0);
-            let rechargeTotal = recharges.reduce((acc, r) => acc + (parseFloat(r.amount)||0), 0);
+            let recharge = recharges.reduce((acc, r) => acc + (parseFloat(r.amount)||0), 0);
             document.getElementById('totalSales').innerText = sales.toFixed(2);
-            document.getElementById('totalRecharge').innerText = rechargeTotal.toFixed(2);
-            document.getElementById('netProfit').innerText = (sales - rechargeTotal).toFixed(2);
+            document.getElementById('totalRecharge').innerText = recharge.toFixed(2);
+            document.getElementById('netProfit').innerText = (sales - recharge).toFixed(2);
         }
 
         window.addRecharge = async () => {
             const amt = document.getElementById('rechargeAmount').value;
             const note = document.getElementById('rechargeNote').value;
             if(amt) {
-                await addDoc(collection(db, "recharges"), { amount: parseFloat(amt), note: note, date: new Date().toISOString(), userId: currentUser.uid });
+                await addDoc(collection(db, "recharges"), { amount: parseFloat(amt), note, date: new Date().toISOString(), userId: currentUser.uid });
                 document.getElementById('rechargeAmount').value = '';
-                document.getElementById('rechargeNote').value = '';
             }
         };
         window.deleteRecharge = async (id) => { if(confirm("حذف؟")) await deleteDoc(doc(db, "recharges", id)); };
-        function renderRechargeTable() {
-            const t = document.getElementById('rechargeTableBody'); t.innerHTML = '';
-            recharges.forEach(r => {
-                t.innerHTML += `<tr><td>${r.amount}</td><td>${r.date.split('T')[0]}</td><td>${r.note}</td><td><button class="btn btn-danger btn-sm" onclick="deleteRecharge('${r.id}')">&times;</button></td></tr>`;
-            });
-        }
 
         document.getElementById('subscriberForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -628,99 +721,75 @@
         });
 
         window.editSub = (id) => {
-            document.getElementById('detailsModal').style.display='none';
-            showSection('add');
             const s = subscribers.find(x => x.id === id);
-            document.getElementById('formTitle').innerText = 'تعديل مشترك: ' + s.name;
+            document.getElementById('formTitle').innerText = 'تعديل: ' + s.name;
             document.getElementById('editId').value = s.id;
-            document.getElementById('name').value = s.name || '';
-            document.getElementById('phone').value = s.phone || '';
-            document.getElementById('deviceType').value = s.device || '';
-            document.getElementById('startDate').value = s.startDate || '';
-            document.getElementById('duration').value = s.duration || '';
-            document.getElementById('iptvPrice').value = s.iptvPrice || '';
-            document.getElementById('iboMac').value = s.iboMac || '';
-            document.getElementById('iboKey').value = s.iboKey || '';
-            document.getElementById('iboStartDate').value = s.iboStartDate || '';
-            document.getElementById('iboDuration').value = s.iboDuration || '';
-            document.getElementById('iboPrice').value = s.iboPrice || '';
-            document.getElementById('host').value = s.host || '';
-            document.getElementById('username').value = s.username || '';
-            document.getElementById('password').value = s.password || '';
-            document.getElementById('m3u').value = s.m3u || '';
+            // Fill all fields
+            document.getElementById('name').value = s.name||'';
+            document.getElementById('phone').value = s.phone||'';
+            document.getElementById('deviceType').value = s.device||'';
+            document.getElementById('startDate').value = s.startDate||'';
+            document.getElementById('duration').value = s.duration||'';
+            document.getElementById('iptvPrice').value = s.iptvPrice||'';
+            document.getElementById('iboMac').value = s.iboMac||'';
+            document.getElementById('iboKey').value = s.iboKey||'';
+            document.getElementById('iboStartDate').value = s.iboStartDate||'';
+            document.getElementById('iboDuration').value = s.iboDuration||'';
+            document.getElementById('iboPrice').value = s.iboPrice||'';
+            document.getElementById('host').value = s.host||'';
+            document.getElementById('username').value = s.username||'';
+            document.getElementById('password').value = s.password||'';
+            document.getElementById('m3u').value = s.m3u||'';
+            showSection('add');
+            document.getElementById('detailsModal').style.display='none';
         };
 
-        window.resetForm = function() { 
-            document.getElementById('subscriberForm').reset(); 
-            document.getElementById('editId').value=''; 
-            document.getElementById('formTitle').innerText = 'إضافة مشترك جديد';
-        }
+        window.resetForm = () => { document.getElementById('subscriberForm').reset(); document.getElementById('editId').value=''; document.getElementById('formTitle').innerText='إضافة مشترك'; }
 
         window.showDetails = (id) => {
             const s = subscribers.find(x => x.id === id);
             const content = document.getElementById('detailsContent');
             const total = (parseFloat(s.iptvPrice)||0) + (parseFloat(s.iboPrice)||0);
-            let iboStatus = "غير مفعل", iboEndDisplay = "-";
-            if (s.iboDuration && s.iboStartDate) {
-                if (s.iboDuration === 'lifetime') { iboStatus = "مدى الحياة"; iboEndDisplay = "∞"; } 
-                else if (s.iboDuration === 'year') {
-                    let start = new Date(s.iboStartDate);
-                    let end = new Date(start);
-                    end.setFullYear(end.getFullYear() + 1);
-                    iboEndDisplay = end.toISOString().split('T')[0];
-                    let diff = Math.ceil((end - new Date()) / (1000 * 60 * 60 * 24));
-                    iboStatus = diff > 0 ? `${diff} يوم` : "منتهي";
-                }
+            
+            let iboStatus = "غير مفعل", iboEnd = "-";
+            if (s.iboDuration === 'lifetime') { iboStatus = "مدى الحياة"; iboEnd = "∞"; } 
+            else if (s.iboDuration === 'year' && s.iboStartDate) {
+                let end = new Date(s.iboStartDate); end.setFullYear(end.getFullYear()+1);
+                iboEnd = end.toISOString().split('T')[0];
+                let diff = Math.ceil((end - new Date())/(1000*60*60*24));
+                iboStatus = diff > 0 ? `${diff} يوم` : "منتهي";
             }
             const iptvDays = getDays(s.endDate);
-            const iptvStatus = iptvDays > 0 ? `${iptvDays} يوم` : "منتهي";
 
             content.innerHTML = `
                 <div class="detail-row"><span>الاسم:</span> <span>${s.name}</span></div>
-                <div class="detail-row"><span>الهاتف:</span> <span>${s.phone || '-'}</span></div>
+                <div class="detail-row"><span>الهاتف:</span> <a href="tel:${s.phone}">${s.phone || '-'}</a></div>
                 <div class="detail-row"><span>الجهاز:</span> <span>${s.device || '-'}</span></div>
-                <h4 style="color:var(--primary);margin-top:10px;border-bottom:1px solid #eee;">معلومات IPTV</h4>
-                <div class="detail-row"><span>تاريخ البدء:</span> <span>${s.startDate}</span></div>
-                <div class="detail-row"><span>تاريخ الانتهاء:</span> <span>${s.endDate}</span></div>
-                <div class="detail-row" style="color:var(--success)"><span>المتبقي:</span> <span>${iptvStatus}</span></div>
-                <h4 style="color:var(--primary);margin-top:10px;border-bottom:1px solid #eee;">IBO Player</h4>
-                <div class="detail-row"><span>MAC:</span> <span>${s.iboMac || '-'}</span></div>
-                <div class="detail-row"><span>Key:</span> <span>${s.iboKey || '-'}</span></div>
-                <div class="detail-row"><span>تاريخ التفعيل:</span> <span>${s.iboStartDate || '-'}</span></div>
-                <div class="detail-row"><span>تاريخ الانتهاء:</span> <span>${iboEndDisplay}</span></div>
-                <div class="detail-row" style="color:var(--info)"><span>المتبقي:</span> <span>${iboStatus}</span></div>
-                <h4 style="color:var(--primary);margin-top:10px;border-bottom:1px solid #eee;">السيرفر</h4>
-                <div class="detail-row"><span>Host:</span> <span>${s.host || '-'}</span></div>
-                <div class="detail-row"><span>User:</span> <span>${s.username || '-'}</span></div>
-                <div class="detail-row"><span>Pass:</span> <span>${s.password || '-'}</span></div>
-                <div style="margin-top:5px"><strong>M3U:</strong><textarea class="form-control" rows="2" readonly>${s.m3u || ''}</textarea></div>
-                <h4 style="color:var(--primary);margin-top:10px;border-bottom:1px solid #eee;">المالية</h4>
-                <div class="detail-row"><span>سعر IPTV:</span> <span>${s.iptvPrice || 0}</span></div>
-                <div class="detail-row"><span>سعر IBO:</span> <span>${s.iboPrice || 0}</span></div>
-                <div class="detail-row" style="background:#f0f9ff; padding:5px; margin-top:5px; font-weight:bold;"><span>الإجمالي:</span> <span>${total}</span></div>
+                <h4 style="color:var(--primary);margin-top:15px;border-bottom:1px solid #eee;">IPTV (${iptvDays} يوم)</h4>
+                <div class="detail-row"><span>البدء:</span> <span>${s.startDate}</span></div>
+                <div class="detail-row"><span>الانتهاء:</span> <span>${s.endDate}</span></div>
+                <h4 style="color:var(--primary);margin-top:15px;border-bottom:1px solid #eee;">IBO (${iboStatus})</h4>
+                <div class="detail-row"><span>MAC:</span> <span style="font-size:0.9rem">${s.iboMac||'-'}</span></div>
+                <div class="detail-row"><span>Key:</span> <span>${s.iboKey||'-'}</span></div>
+                <div class="detail-row"><span>تاريخ التفعيل:</span> <span>${s.iboStartDate||'-'}</span></div>
+                <h4 style="color:var(--primary);margin-top:15px;border-bottom:1px solid #eee;">السيرفر</h4>
+                <div class="detail-row"><span>Host:</span> <span style="font-size:0.85rem">${s.host||'-'}</span></div>
+                <div class="detail-row"><span>User:</span> <span>${s.username||'-'}</span></div>
+                <div class="detail-row"><span>Pass:</span> <span>${s.password||'-'}</span></div>
+                <div style="margin-top:5px"><strong>M3U:</strong><textarea class="form-control" rows="2" readonly>${s.m3u||''}</textarea></div>
+                <div class="detail-row" style="background:#f0f9ff; padding:8px; margin-top:10px; border-radius:8px"><span>المجموع:</span> <span style="font-weight:bold">${total}</span></div>
             `;
-            const editBtn = document.getElementById('modalEditBtn');
-            editBtn.onclick = function() { editSub(s.id); };
+            document.getElementById('modalEditBtn').onclick = () => editSub(s.id);
             document.getElementById('detailsModal').style.display = 'flex';
         };
 
         window.moveToTrash = async (id) => { if(confirm("نقل للسلة؟")) { const s = subscribers.find(x=>x.id===id); await addDoc(collection(db,"trash"),{...s, deletedAt:new Date().toISOString()}); await deleteDoc(doc(db,"subscribers",id)); }};
-        window.renderTrash = () => { const t = document.getElementById('trashTableBody'); t.innerHTML = ''; trash.forEach(i => t.innerHTML += `<tr><td>${i.name}</td><td><button class="btn btn-success btn-sm" onclick="restore('${i.id}')">استعادة</button></td><td><button class="btn btn-danger btn-sm" onclick="permDelete('${i.id}')">&times;</button></td></tr>`); };
-        
-        // FIXED RESTORE LOGIC
-        window.restore = async (id) => { 
-            const i = trash.find(x=>x.id===id); 
-            if(i) {
-                const {deletedAt, id:old,...d}=i; 
-                await addDoc(collection(db,"subscribers"),d); 
-                await deleteDoc(doc(db,"trash"),id); 
-            }
-        };
+        window.restore = async (id) => { const i = trash.find(x=>x.id===id); if(i) { const {deletedAt, id:old, ...d}=i; await addDoc(collection(db,"subscribers"),d); await deleteDoc(doc(db,"trash"),id); }};
         window.permDelete = async (id) => { if(confirm("نهائي؟")) await deleteDoc(doc(db,"trash"),id); };
 
         window.addDevice = async () => { const v=document.getElementById('newDeviceInput').value; if(v) await addDoc(collection(db,"managed_devices"),{name:v}); document.getElementById('newDeviceInput').value=''; };
         window.deleteDevice = async (id) => { if(confirm("حذف؟")) await deleteDoc(doc(db,"managed_devices"),id); };
-        function renderAdminDevices() { const d=document.getElementById('devicesList'); d.innerHTML=''; managedDevices.forEach(i=>d.innerHTML+=`<span style="background:#ddd;padding:5px 10px;border-radius:10px">${i.name} <b style="color:red;cursor:pointer" onclick="deleteDevice('${i.id}')">&times;</b></span>`); }
+        function renderAdminDevices() { const d=document.getElementById('devicesList'); d.innerHTML=''; managedDevices.forEach(i=>d.innerHTML+=`<span style="background:#ddd;padding:5px 10px;border-radius:10px;display:inline-block">${i.name} <b style="color:red;cursor:pointer" onclick="deleteDevice('${i.id}')">&times;</b></span>`); }
         window.renderDeviceSelect = () => { const s=document.getElementById('deviceType'); const old=s.value; s.innerHTML='<option value="">اختر</option>'; managedDevices.forEach(i=>s.innerHTML+=`<option value="${i.name}">${i.name}</option>`); s.value=old; };
         
         function getDays(e) { return Math.ceil((new Date(e)-new Date())/(1000*60*60*24)); }
@@ -731,23 +800,7 @@
             subscribers.forEach(s => { const m = s.startDate.substring(0,7); months[m] = (months[m]||0)+1; });
             const labels = Object.keys(months).sort();
             if(salesChartInstance) salesChartInstance.destroy();
-            salesChartInstance = new Chart(ctx, { 
-                type:'bar', 
-                data:{
-                    labels, 
-                    datasets:[{
-                        label:'عدد الاشتراكات', 
-                        data:labels.map(l=>months[l]), 
-                        backgroundColor:'#4f46e5',
-                        borderRadius: 5
-                    }]
-                }, 
-                options:{
-                    maintainAspectRatio:false,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } }
-                } 
-            });
+            salesChartInstance = new Chart(ctx, { type:'bar', data:{labels, datasets:[{label:'الاشتراكات', data:labels.map(l=>months[l]), backgroundColor:'#4f46e5', borderRadius: 5}]}, options:{maintainAspectRatio:false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } } } });
         }
     </script>
 </body>
